@@ -1,0 +1,2735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Demand Writing Studio — AI Demand Writing Automation</title>
+
+  <meta
+    name="description"
+    content="Interactive synthetic demonstration of an evidence-grounded AI demand writing workflow."
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #08101f;
+      --panel: #0f192c;
+      --panel-2: #121f37;
+      --panel-3: #0b1528;
+      --border: rgba(255, 255, 255, 0.09);
+      --border-strong: rgba(124, 140, 255, 0.24);
+      --text: #f4f7ff;
+      --muted: #98a6c3;
+      --muted-2: #72819d;
+      --accent: #7c8cff;
+      --accent-2: #5ed7c0;
+      --warning: #f3c76b;
+      --danger: #ff9191;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(124, 140, 255, 0.13),
+          transparent 31%
+        ),
+        radial-gradient(
+          circle at top right,
+          rgba(94, 215, 192, 0.07),
+          transparent 28%
+        ),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          rgba(255, 255, 255, 0.012) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.012) 1px,
+          transparent 1px
+        );
+      background-size: 32px 32px;
+      opacity: 0.22;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .shell {
+      width: min(1380px, 95%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* --------------------------------------------------
+       TOP BAR
+    -------------------------------------------------- */
+
+    .topbar {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(8, 16, 31, 0.84);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(124, 140, 255, 0.22),
+          rgba(94, 215, 192, 0.15)
+        );
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .brand-name span {
+      color: var(--accent);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-link {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      transition: 0.2s ease;
+    }
+
+    .top-link:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    /* --------------------------------------------------
+       GENERAL
+    -------------------------------------------------- */
+
+    .page {
+      padding: 28px 0 65px;
+    }
+
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid rgba(243, 199, 107, 0.2);
+      background: rgba(243, 199, 107, 0.045);
+      color: #d9c58f;
+      border-radius: 14px;
+      padding: 13px 15px;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    .notice strong {
+      color: var(--warning);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 252px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .sidebar,
+    .panel,
+    .metric,
+    .document-card,
+    .timeline-item,
+    .evidence-item,
+    .agent-card {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.035);
+      box-shadow: var(--shadow);
+    }
+
+    /* --------------------------------------------------
+       SIDEBAR
+    -------------------------------------------------- */
+
+    .sidebar {
+      height: fit-content;
+      position: sticky;
+      top: 94px;
+      border-radius: 18px;
+      padding: 15px;
+    }
+
+    .case-mini {
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.045);
+      border-radius: 13px;
+      margin-bottom: 17px;
+    }
+
+    .case-mini-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .case-mini small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .case-chip {
+      color: var(--accent-2);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .case-mini strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 3px;
+    }
+
+    .case-mini span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .side-title {
+      color: var(--muted-2);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 800;
+      margin: 15px 9px 8px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 11px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 12px;
+      margin-bottom: 3px;
+      transition: 0.2s ease;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: var(--text);
+      background: rgba(124, 140, 255, 0.11);
+    }
+
+    .nav-btn.active .nav-num {
+      background: rgba(124, 140, 255, 0.16);
+      color: var(--accent);
+    }
+
+    .nav-num {
+      width: 25px;
+      height: 25px;
+      flex: 0 0 25px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .sidebar-note {
+      margin-top: 18px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    /* --------------------------------------------------
+       MAIN HEADER
+    -------------------------------------------------- */
+
+    .main {
+      min-width: 0;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--accent-2);
+      font-size: 10px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(33px, 4.5vw, 51px);
+      letter-spacing: -0.045em;
+      line-height: 1.02;
+    }
+
+    .header-row p {
+      color: var(--muted);
+      margin-top: 9px;
+      max-width: 720px;
+      font-size: 13px;
+    }
+
+    .status-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(94, 215, 192, 0.18);
+      background: rgba(94, 215, 192, 0.07);
+      color: var(--accent-2);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .status-meta {
+      color: var(--muted-2);
+      font-size: 10px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 12px rgba(94, 215, 192, 0.45);
+    }
+
+    /* --------------------------------------------------
+       METRICS
+    -------------------------------------------------- */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 11px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      border-radius: 15px;
+      padding: 17px;
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 27px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted-2);
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    /* --------------------------------------------------
+       PANEL
+    -------------------------------------------------- */
+
+    .panel {
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      scroll-margin-top: 94px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel-head h2 {
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-head p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    /* --------------------------------------------------
+       BUTTONS
+    -------------------------------------------------- */
+
+    .btn {
+      border: 1px solid var(--border);
+      min-height: 39px;
+      border-radius: 10px;
+      padding: 0 13px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 11px;
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.075);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #08101f;
+      border-color: transparent;
+    }
+
+    .btn-primary:hover {
+      background: #8e99ff;
+    }
+
+    .btn-success {
+      background: rgba(94, 215, 192, 0.12);
+      color: var(--accent-2);
+      border-color: rgba(94, 215, 192, 0.19);
+    }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    /* --------------------------------------------------
+       UPLOAD
+    -------------------------------------------------- */
+
+    .dropzone {
+      border: 1.5px dashed rgba(124, 140, 255, 0.33);
+      border-radius: 15px;
+      padding: 28px;
+      text-align: center;
+      background: rgba(124, 140, 255, 0.042);
+      transition: 0.2s ease;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(124, 140, 255, 0.09);
+      transform: translateY(-1px);
+    }
+
+    .upload-icon {
+      width: 45px;
+      height: 45px;
+      margin: 0 auto 11px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(124, 140, 255, 0.12);
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 19px;
+    }
+
+    .dropzone h3 {
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .dropzone p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 14px;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .documents {
+      display: grid;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .document-card {
+      border-radius: 12px;
+      padding: 12px 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .doc-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .doc-icon {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: rgba(124, 140, 255, 0.1);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .doc-info {
+      min-width: 0;
+    }
+
+    .doc-info strong {
+      display: block;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .doc-info span {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .chip {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--muted);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .chip-success {
+      color: var(--accent-2);
+      background: rgba(94, 215, 192, 0.07);
+    }
+
+    /* --------------------------------------------------
+       PROCESSING
+    -------------------------------------------------- */
+
+    .processing {
+      margin-top: 11px;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.028);
+      font-size: 11px;
+    }
+
+    .processing-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+    }
+
+    .progress-track {
+      height: 6px;
+      margin-top: 9px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .progress {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(
+        90deg,
+        var(--accent),
+        var(--accent-2)
+      );
+      transition: width 0.35s ease;
+    }
+
+    /* --------------------------------------------------
+       FACTS
+    -------------------------------------------------- */
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .fact-group {
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.024);
+    }
+
+    .fact-group h3 {
+      font-size: 12px;
+      margin-bottom: 9px;
+    }
+
+    .fact-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 13px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+      font-size: 11px;
+    }
+
+    .fact-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .fact-row span:first-child {
+      color: var(--muted);
+    }
+
+    .fact-row span:last-child {
+      color: var(--text);
+      text-align: right;
+      font-weight: 700;
+    }
+
+    /* --------------------------------------------------
+       TIMELINE
+    -------------------------------------------------- */
+
+    .timeline {
+      display: grid;
+      gap: 9px;
+    }
+
+    .timeline-item {
+      border-radius: 13px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 112px 1fr auto;
+      gap: 13px;
+      align-items: center;
+    }
+
+    .timeline-date {
+      font-weight: 800;
+      font-size: 11px;
+    }
+
+    .timeline-main strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .timeline-main span {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .timeline-tag {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(124, 140, 255, 0.09);
+      color: var(--accent);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    /* --------------------------------------------------
+       DAMAGES
+    -------------------------------------------------- */
+
+    .damage-list {
+      display: grid;
+      gap: 0;
+    }
+
+    .damage-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .damage-row span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .damage-row strong {
+      font-size: 12px;
+    }
+
+    .damage-total {
+      margin-top: 7px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .damage-total span:last-child {
+      color: var(--accent-2);
+    }
+
+    /* --------------------------------------------------
+       EVIDENCE
+    -------------------------------------------------- */
+
+    .evidence-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.024);
+      border-radius: 12px;
+    }
+
+    .retrieval-status {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .retrieval-status strong {
+      color: var(--accent-2);
+    }
+
+    .evidence-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .evidence-item {
+      padding: 13px;
+      border-radius: 13px;
+    }
+
+    .evidence-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .source {
+      color: var(--accent-2);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .confidence {
+      color: var(--muted);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .evidence-item p {
+      color: #cad3e7;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    /* --------------------------------------------------
+       AI PIPELINE
+    -------------------------------------------------- */
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .agent-card {
+      padding: 14px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .agent-index {
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+
+    .agent-card h3 {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .agent-card p {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    /* --------------------------------------------------
+       DRAFT
+    -------------------------------------------------- */
+
+    .draft-layout {
+      display: grid;
+      grid-template-columns: 0.8fr 1.65fr;
+      gap: 12px;
+    }
+
+    .draft-controls {
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.024);
+    }
+
+    .control-label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-bottom: 5px;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--panel-3);
+      color: var(--text);
+      border-radius: 10px;
+      outline: none;
+    }
+
+    select {
+      min-height: 37px;
+      padding: 0 9px;
+      margin-bottom: 12px;
+      font-size: 11px;
+    }
+
+    textarea {
+      min-height: 470px;
+      padding: 14px;
+      resize: vertical;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: var(--border-strong);
+      box-shadow: 0 0 0 3px rgba(124, 140, 255, 0.07);
+    }
+
+    .review-box {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .review-pill {
+      padding: 7px 9px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    .review-pill strong {
+      color: var(--text);
+    }
+
+    .review-state {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .review-state strong {
+      color: var(--text);
+    }
+
+    /* --------------------------------------------------
+       EMPTY / HIDDEN
+    -------------------------------------------------- */
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* --------------------------------------------------
+       FOOTER
+    -------------------------------------------------- */
+
+    .footer-note {
+      margin-top: 28px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 10px;
+    }
+
+    /* --------------------------------------------------
+       RESPONSIVE
+    -------------------------------------------------- */
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .sidebar {
+        display: block;
+      }
+
+      .nav-btn {
+        width: auto;
+        display: inline-flex;
+        margin-right: 4px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .agent-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .draft-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .top-actions .top-link {
+        display: none;
+      }
+
+      .header-row {
+        flex-direction: column;
+      }
+
+      .status-stack {
+        align-items: flex-start;
+      }
+
+      .grid-2,
+      .metrics,
+      .agent-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .timeline-tag {
+        width: fit-content;
+      }
+
+      .panel {
+        padding: 15px;
+      }
+
+      .topbar {
+        min-height: 66px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="shell">
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+      <a href="index.html" class="brand">
+
+        <div class="brand-mark">AI</div>
+
+        <div class="brand-name">
+          Demand <span>Automation</span>
+        </div>
+
+      </a>
+
+      <div class="top-actions">
+
+        <a href="index.html" class="top-link">
+          Home
+        </a>
+
+        <a href="architecture.html" class="top-link">
+          Architecture
+        </a>
+
+        <a href="documentation.html" class="top-link">
+          Documentation
+        </a>
+
+        <a
+          href="https://github.com/david-holden1/Ai-demand-writing-automation"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn"
+        >
+          GitHub
+        </a>
+
+      </div>
+
+    </header>
+
+    <main class="page">
+
+      <!-- DEMO NOTICE -->
+
+      <div class="notice">
+
+        <span>●</span>
+
+        <div>
+          <strong>Synthetic demonstration:</strong>
+          This workspace uses fictional, non-identifying case data to
+          demonstrate the intended AI document workflow. It is not legal advice.
+        </div>
+
+      </div>
+
+      <div class="workspace">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+          <div class="case-mini">
+
+            <div class="case-mini-top">
+
+              <small>Active case</small>
+
+              <span class="case-chip">
+                Demo
+              </span>
+
+            </div>
+
+            <strong>
+              Johnson v. Meridian
+            </strong>
+
+            <span>
+              CASE-2026-0148
+            </span>
+
+          </div>
+
+          <div class="side-title">
+            Workflow
+          </div>
+
+          <button
+            class="nav-btn active"
+            data-target="documentsPanel"
+          >
+            <span class="nav-num">01</span>
+            Documents
+          </button>
+
+          <button
+            class="nav-btn"
+            data-target="factsPanel"
+          >
+            <span class="nav-num">02</span>
+            Case Facts
+          </button>
+
+          <button
+            class="nav-btn"
+            data-target="timelinePanel"
+          >
+            <span class="nav-num">03</span>
+            Timeline
+          </button>
+
+          <button
+            class="nav-btn"
+            data-target="evidencePanel"
+          >
+            <span class="nav-num">04</span>
+            Evidence
+          </button>
+
+          <button
+            class="nav-btn"
+            data-target="agentsPanel"
+          >
+            <span class="nav-num">05</span>
+            AI Pipeline
+          </button>
+
+          <button
+            class="nav-btn"
+            data-target="draftPanel"
+          >
+            <span class="nav-num">06</span>
+            Demand Draft
+          </button>
+
+          <div class="sidebar-note">
+
+            <strong style="color: var(--text);">
+              Demo architecture
+            </strong>
+
+            <br />
+
+            Document ingestion → extraction → retrieval →
+            AI orchestration → human review
+
+          </div>
+
+        </aside>
+
+        <!-- MAIN -->
+
+        <section class="main">
+
+          <!-- HEADER -->
+
+          <div class="header-row">
+
+            <div>
+
+              <div class="eyebrow">
+                AI-assisted case workspace
+              </div>
+
+              <h1>
+                Demand Writing Studio
+              </h1>
+
+              <p>
+                Experience a synthetic end-to-end workflow for document
+                ingestion, case extraction, evidence retrieval, AI drafting,
+                and human review.
+              </p>
+
+            </div>
+
+            <div class="status-stack">
+
+              <div class="status">
+                <span class="dot"></span>
+                Demo Environment
+              </div>
+
+              <div class="status-meta">
+                Source-grounded workflow simulation
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- METRICS -->
+
+          <div class="metrics">
+
+            <div class="metric">
+
+              <small>
+                Documents
+              </small>
+
+              <strong id="documentCount">
+                3
+              </strong>
+
+              <span>
+                processed sources
+              </span>
+
+            </div>
+
+            <div class="metric">
+
+              <small>
+                Evidence chunks
+              </small>
+
+              <strong>
+                47
+              </strong>
+
+              <span>
+                retrieval-ready passages
+              </span>
+
+            </div>
+
+            <div class="metric">
+
+              <small>
+                Medical expenses
+              </small>
+
+              <strong>
+                $18,640
+              </strong>
+
+              <span>
+                synthetic demo total
+              </span>
+
+            </div>
+
+            <div class="metric">
+
+              <small>
+                Extraction confidence
+              </small>
+
+              <strong>
+                94%
+              </strong>
+
+              <span>
+                simulated source confidence
+              </span>
+
+            </div>
+
+          </div>
+
+          <!-- DOCUMENTS -->
+
+          <section
+            class="panel"
+            id="documentsPanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Case documents
+                </h2>
+
+                <p>
+                  Upload synthetic or de-identified PDF and DOCX materials.
+                </p>
+
+              </div>
+
+              <div class="actions">
+
+                <button
+                  class="btn"
+                  id="clearFiles"
+                >
+                  Clear
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  id="processBtn"
+                >
+                  Process documents
+                </button>
+
+              </div>
+
+            </div>
+
+            <div
+              class="dropzone"
+              id="dropzone"
+            >
+
+              <div class="upload-icon">
+                ↑
+              </div>
+
+              <h3>
+                Drop case documents here
+              </h3>
+
+              <p>
+                Supported: PDF, DOC, DOCX
+              </p>
+
+              <button
+                class="btn"
+                id="browseBtn"
+              >
+                Browse files
+              </button>
+
+              <input
+                id="fileInput"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                multiple
+              />
+
+            </div>
+
+            <div
+              id="processingBox"
+              class="processing hidden"
+            >
+
+              <div class="processing-top">
+
+                <span id="processingText">
+                  Preparing document pipeline...
+                </span>
+
+                <span id="processingPercent">
+                  0%
+                </span>
+
+              </div>
+
+              <div class="progress-track">
+                <div
+                  class="progress"
+                  id="progressBar"
+                ></div>
+              </div>
+
+            </div>
+
+            <div
+              class="documents"
+              id="documentList"
+            >
+
+              <div class="document-card">
+
+                <div class="doc-left">
+
+                  <div class="doc-icon">
+                    PDF
+                  </div>
+
+                  <div class="doc-info">
+
+                    <strong>
+                      medical-records-demo.pdf
+                    </strong>
+
+                    <span>
+                      12 pages · processed
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <span class="chip chip-success">
+                  Processed
+                </span>
+
+              </div>
+
+              <div class="document-card">
+
+                <div class="doc-left">
+
+                  <div class="doc-icon">
+                    PDF
+                  </div>
+
+                  <div class="doc-info">
+
+                    <strong>
+                      billing-summary-demo.pdf
+                    </strong>
+
+                    <span>
+                      4 pages · processed
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <span class="chip chip-success">
+                  Processed
+                </span>
+
+              </div>
+
+              <div class="document-card">
+
+                <div class="doc-left">
+
+                  <div class="doc-icon">
+                    DOCX
+                  </div>
+
+                  <div class="doc-info">
+
+                    <strong>
+                      incident-report-demo.docx
+                    </strong>
+
+                    <span>
+                      3 pages · processed
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <span class="chip chip-success">
+                  Processed
+                </span>
+
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- FACTS -->
+
+          <section
+            class="panel"
+            id="factsPanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Extracted case facts
+                </h2>
+
+                <p>
+                  Structured entities generated from the document pipeline.
+                </p>
+
+              </div>
+
+              <span class="chip chip-success">
+                AI extracted
+              </span>
+
+            </div>
+
+            <div class="grid-2">
+
+              <div class="fact-group">
+
+                <h3>
+                  Claimant
+                </h3>
+
+                <div class="fact-row">
+                  <span>Name</span>
+                  <span>Jordan Johnson</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Incident date</span>
+                  <span>May 14, 2026</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Case type</span>
+                  <span>Motor vehicle</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Status</span>
+                  <span>Active treatment</span>
+                </div>
+
+              </div>
+
+              <div class="fact-group">
+
+                <h3>
+                  Treatment
+                </h3>
+
+                <div class="fact-row">
+                  <span>Initial provider</span>
+                  <span>Riverside Medical</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Specialist</span>
+                  <span>Northside Orthopedics</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Therapy sessions</span>
+                  <span>18</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Primary diagnosis</span>
+                  <span>Cervical strain</span>
+                </div>
+
+              </div>
+
+              <div class="fact-group">
+
+                <h3>
+                  Documented impact
+                </h3>
+
+                <div class="fact-row">
+                  <span>Lost work</span>
+                  <span>21 days</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Restrictions</span>
+                  <span>Limited lifting</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Follow-up</span>
+                  <span>Orthopedic review</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Evidence confidence</span>
+                  <span>94%</span>
+                </div>
+
+              </div>
+
+              <div class="fact-group">
+
+                <h3>
+                  Damages
+                </h3>
+
+                <div class="fact-row">
+                  <span>Medical</span>
+                  <span>$18,640</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Wage documentation</span>
+                  <span>Available</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Future care</span>
+                  <span>Under review</span>
+                </div>
+
+                <div class="fact-row">
+                  <span>Source coverage</span>
+                  <span>High</span>
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- TIMELINE -->
+
+          <section
+            class="panel"
+            id="timelinePanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Case timeline
+                </h2>
+
+                <p>
+                  Chronological events assembled from the source documents.
+                </p>
+
+              </div>
+
+              <button class="btn">
+                Export timeline
+              </button>
+
+            </div>
+
+            <div class="timeline">
+
+              <div class="timeline-item">
+
+                <div class="timeline-date">
+                  May 14, 2026
+                </div>
+
+                <div class="timeline-main">
+
+                  <strong>
+                    Incident recorded
+                  </strong>
+
+                  <span>
+                    Motor vehicle collision documented in incident report.
+                  </span>
+
+                </div>
+
+                <div class="timeline-tag">
+                  Incident
+                </div>
+
+              </div>
+
+              <div class="timeline-item">
+
+                <div class="timeline-date">
+                  May 15, 2026
+                </div>
+
+                <div class="timeline-main">
+
+                  <strong>
+                    Emergency evaluation
+                  </strong>
+
+                  <span>
+                    Initial evaluation documented neck and shoulder pain.
+                  </span>
+
+                </div>
+
+                <div class="timeline-tag">
+                  Medical
+                </div>
+
+              </div>
+
+              <div class="timeline-item">
+
+                <div class="timeline-date">
+                  May 28, 2026
+                </div>
+
+                <div class="timeline-main">
+
+                  <strong>
+                    Specialist referral
+                  </strong>
+
+                  <span>
+                    Orthopedic follow-up ordered following continued symptoms.
+                  </span>
+
+                </div>
+
+                <div class="timeline-tag">
+                  Referral
+                </div>
+
+              </div>
+
+              <div class="timeline-item">
+
+                <div class="timeline-date">
+                  Jun 03, 2026
+                </div>
+
+                <div class="timeline-main">
+
+                  <strong>
+                    Physical therapy initiated
+                  </strong>
+
+                  <span>
+                    Treatment plan includes supervised rehabilitation sessions.
+                  </span>
+
+                </div>
+
+                <div class="timeline-tag">
+                  Treatment
+                </div>
+
+              </div>
+
+              <div class="timeline-item">
+
+                <div class="timeline-date">
+                  Jul 11, 2026
+                </div>
+
+                <div class="timeline-main">
+
+                  <strong>
+                    Work restrictions updated
+                  </strong>
+
+                  <span>
+                    Medical records document continued lifting restrictions.
+                  </span>
+
+                </div>
+
+                <div class="timeline-tag">
+                  Impact
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- DAMAGES -->
+
+          <section class="panel">
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Documented damages
+                </h2>
+
+                <p>
+                  Structured financial information extracted from source records.
+                </p>
+
+              </div>
+
+              <span class="chip">
+                Source-backed
+              </span>
+
+            </div>
+
+            <div class="damage-list">
+
+              <div class="damage-row">
+                <span>Emergency evaluation</span>
+                <strong>$4,820</strong>
+              </div>
+
+              <div class="damage-row">
+                <span>Orthopedic treatment</span>
+                <strong>$6,950</strong>
+              </div>
+
+              <div class="damage-row">
+                <span>Physical therapy</span>
+                <strong>$5,870</strong>
+              </div>
+
+              <div class="damage-row">
+                <span>Diagnostic imaging</span>
+                <strong>$1,000</strong>
+              </div>
+
+              <div class="damage-total">
+                <span>
+                  Total documented medical expenses
+                </span>
+
+                <span>
+                  $18,640
+                </span>
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- EVIDENCE -->
+
+          <section
+            class="panel"
+            id="evidencePanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Evidence retrieval
+                </h2>
+
+                <p>
+                  Retrieved source passages used to ground AI-generated claims.
+                </p>
+
+              </div>
+
+              <button
+                class="btn btn-primary"
+                id="retrieveBtn"
+              >
+                Run retrieval
+              </button>
+
+            </div>
+
+            <div class="evidence-toolbar">
+
+              <div class="retrieval-status">
+                Retrieval status:
+                <strong id="retrievalStatus">
+                  Ready
+                </strong>
+              </div>
+
+              <div class="chip">
+                pgvector simulation
+              </div>
+
+            </div>
+
+            <div
+              class="evidence-grid"
+              id="evidenceList"
+            >
+
+              <div class="evidence-item">
+
+                <div class="evidence-top">
+
+                  <span class="source">
+                    medical-records-demo.pdf · p. 4
+                  </span>
+
+                  <span class="confidence">
+                    Similarity 0.94
+                  </span>
+
+                </div>
+
+                <p>
+                  Patient continued to report neck pain with limited range
+                  of motion during follow-up evaluation.
+                </p>
+
+              </div>
+
+              <div class="evidence-item">
+
+                <div class="evidence-top">
+
+                  <span class="source">
+                    medical-records-demo.pdf · p. 8
+                  </span>
+
+                  <span class="confidence">
+                    Similarity 0.91
+                  </span>
+
+                </div>
+
+                <p>
+                  Treatment plan recommended continued supervised physical
+                  therapy due to persistent symptoms.
+                </p>
+
+              </div>
+
+              <div class="evidence-item">
+
+                <div class="evidence-top">
+
+                  <span class="source">
+                    billing-summary-demo.pdf · p. 2
+                  </span>
+
+                  <span class="confidence">
+                    Similarity 0.88
+                  </span>
+
+                </div>
+
+                <p>
+                  Total documented medical charges for the treatment period
+                  were listed as $18,640.
+                </p>
+
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- AI PIPELINE -->
+
+          <section
+            class="panel"
+            id="agentsPanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Multi-agent AI pipeline
+                </h2>
+
+                <p>
+                  Specialized workflow stages designed to separate extraction,
+                  retrieval, drafting, and validation.
+                </p>
+
+              </div>
+
+              <span class="chip">
+                LangGraph concept
+              </span>
+
+            </div>
+
+            <div class="agent-grid">
+
+              <div class="agent-card">
+                <div class="agent-index">01</div>
+
+                <h3>
+                  Document Agent
+                </h3>
+
+                <p>
+                  Classifies uploaded documents and prepares content for analysis.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">02</div>
+
+                <h3>
+                  Extraction Agent
+                </h3>
+
+                <p>
+                  Produces structured entities from source material.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">03</div>
+
+                <h3>
+                  Timeline Agent
+                </h3>
+
+                <p>
+                  Converts documented events into chronological case history.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">04</div>
+
+                <h3>
+                  Damages Agent
+                </h3>
+
+                <p>
+                  Organizes supported medical and financial information.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">05</div>
+
+                <h3>
+                  Retrieval Agent
+                </h3>
+
+                <p>
+                  Finds source passages relevant to requested case facts.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">06</div>
+
+                <h3>
+                  Drafting Agent
+                </h3>
+
+                <p>
+                  Produces a structured draft using retrieved evidence.
+                </p>
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- DEMAND DRAFT -->
+
+          <section
+            class="panel"
+            id="draftPanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Demand letter generator
+                </h2>
+
+                <p>
+                  Generate and edit a synthetic evidence-grounded draft.
+                </p>
+
+              </div>
+
+              <div class="actions">
+
+                <button
+                  class="btn"
+                  id="resetDraft"
+                >
+                  Reset
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  id="generateBtn"
+                >
+                  Generate draft
+                </button>
+
+              </div>
+
+            </div>
+
+            <div class="draft-layout">
+
+              <div class="draft-controls">
+
+                <label class="control-label">
+                  Draft tone
+                </label>
+
+                <select id="tone">
+
+                  <option>
+                    Professional
+                  </option>
+
+                  <option>
+                    Concise
+                  </option>
+
+                  <option>
+                    Detailed
+                  </option>
+
+                </select>
+
+                <label class="control-label">
+                  Evidence mode
+                </label>
+
+                <select id="evidenceMode">
+
+                  <option>
+                    Strict source grounding
+                  </option>
+
+                  <option>
+                    Source grounding + synthesis
+                  </option>
+
+                </select>
+
+                <label class="control-label">
+                  Output structure
+                </label>
+
+                <select id="structure">
+
+                  <option>
+                    Standard demand letter
+                  </option>
+
+                  <option>
+                    Executive summary + demand
+                  </option>
+
+                  <option>
+                    Detailed chronology + demand
+                  </option>
+
+                </select>
+
+                <div class="review-box">
+
+                  <div class="review-pill">
+                    <strong>3</strong> documents
+                  </div>
+
+                  <div class="review-pill">
+                    <strong>47</strong> chunks
+                  </div>
+
+                  <div class="review-pill">
+                    <strong>6</strong> evidence links
+                  </div>
+
+                </div>
+
+                <div
+                  class="review-state"
+                  id="reviewState"
+                >
+                  Review state:
+                  <strong>
+                    Draft
+                  </strong>
+                </div>
+
+              </div>
+
+              <div>
+
+                <textarea id="draftEditor">Dear Claims Representative,
+
+RE: Johnson v. Meridian — Demonstration Case
+
+DEMONSTRATION DRAFT
+
+This document is a synthetic demonstration of an evidence-grounded demand letter workflow.
+
+Based on the uploaded case materials, the claimant, Jordan Johnson, was involved in a motor vehicle incident on May 14, 2026. Subsequent medical records document continued neck and shoulder symptoms, follow-up evaluation, orthopedic review, and a course of physical therapy.
+
+The available records indicate documented medical expenses totaling $18,640. The treatment records also describe temporary work restrictions and continued rehabilitation during the documented recovery period.
+
+The statements above demonstrate how extracted case facts and retrieved source evidence can be assembled into a structured draft.
+
+SOURCE REFERENCES
+
+[1] medical-records-demo.pdf, p. 4
+[2] medical-records-demo.pdf, p. 8
+[3] billing-summary-demo.pdf, p. 2
+
+HUMAN REVIEW REQUIRED
+
+A human reviewer should verify all facts, citations, calculations, and legal content before any external use.
+
+Sincerely,
+
+AI Demand Writing Automation
+Demonstration Draft</textarea>
+
+              </div>
+
+            </div>
+
+            <div
+              class="actions"
+              style="margin-top: 13px;"
+            >
+
+              <button
+                class="btn btn-success"
+                id="approveBtn"
+              >
+                Mark ready for review
+              </button>
+
+              <button
+                class="btn"
+                id="downloadBtn"
+              >
+                Export draft
+              </button>
+
+            </div>
+
+          </section>
+
+        </section>
+
+      </div>
+
+      <div class="footer-note">
+        AI Demand Writing Automation · Interactive portfolio demonstration · Synthetic data only
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const browseBtn = document.getElementById("browseBtn");
+    const dropzone = document.getElementById("dropzone");
+    const documentList = document.getElementById("documentList");
+    const documentCount = document.getElementById("documentCount");
+
+    const processBtn = document.getElementById("processBtn");
+    const clearFiles = document.getElementById("clearFiles");
+
+    const processingBox = document.getElementById("processingBox");
+    const processingText = document.getElementById("processingText");
+    const processingPercent = document.getElementById("processingPercent");
+    const progressBar = document.getElementById("progressBar");
+
+    const retrieveBtn = document.getElementById("retrieveBtn");
+    const retrievalStatus = document.getElementById("retrievalStatus");
+
+    const generateBtn = document.getElementById("generateBtn");
+    const resetDraftBtn = document.getElementById("resetDraft");
+    const draftEditor = document.getElementById("draftEditor");
+
+    const approveBtn = document.getElementById("approveBtn");
+    const reviewState = document.getElementById("reviewState");
+
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    const initialDraft = draftEditor.value;
+
+    /* ---------------------------------------------
+       FILE UPLOAD
+    --------------------------------------------- */
+
+    browseBtn.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      addFiles(fileInput.files);
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropzone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropzone.classList.remove("dragover");
+      });
+    });
+
+    dropzone.addEventListener("drop", (event) => {
+      addFiles(event.dataTransfer.files);
+    });
+
+    function addFiles(files) {
+      if (!files || !files.length) {
+        return;
+      }
+
+      Array.from(files).forEach((file) => {
+        const extension = file.name
+          .split(".")
+          .pop()
+          .toUpperCase();
+
+        if (!["PDF", "DOCX", "DOC"].includes(extension)) {
+          return;
+        }
+
+        const card = document.createElement("div");
+        card.className = "document-card";
+
+        card.innerHTML = `
+          <div class="doc-left">
+            <div class="doc-icon">${extension}</div>
+
+            <div class="doc-info">
+              <strong>${escapeHtml(file.name)}</strong>
+              <span>${formatBytes(file.size)} · uploaded</span>
+            </div>
+          </div>
+
+          <span class="chip">
+            Ready
+          </span>
+        `;
+
+        documentList.appendChild(card);
+      });
+
+      updateDocumentCount();
+    }
+
+    function updateDocumentCount() {
+      documentCount.textContent =
+        documentList.querySelectorAll(".document-card").length;
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) {
+        return "0 KB";
+      }
+
+      const kb = bytes / 1024;
+
+      if (kb < 1024) {
+        return `${Math.round(kb)} KB`;
+      }
+
+      return `${(kb / 1024).toFixed(1)} MB`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    /* ---------------------------------------------
+       DOCUMENT PROCESSING
+    --------------------------------------------- */
+
+    processBtn.addEventListener("click", () => {
+
+      if (!documentList.querySelectorAll(".document-card").length) {
+        processingBox.classList.remove("hidden");
+
+        processingText.textContent =
+          "No files selected — loading synthetic demonstration dataset.";
+
+        progressBar.style.width = "100%";
+        processingPercent.textContent = "100%";
+
+        setTimeout(() => {
+          processingBox.classList.add("hidden");
+          progressBar.style.width = "0%";
+          processingPercent.textContent = "0%";
+        }, 1100);
+
+        return;
+      }
+
+      processingBox.classList.remove("hidden");
+
+      let progress = 0;
+
+      const stages = [
+        "Parsing documents...",
+        "Extracting structured facts...",
+        "Building case timeline...",
+        "Indexing evidence chunks...",
+        "Preparing retrieval context...",
+        "Processing complete."
+      ];
+
+      const interval = setInterval(() => {
+
+        progress += 20;
+
+        progressBar.style.width = `${progress}%`;
+        processingPercent.textContent = `${progress}%`;
+
+        const index = Math.min(
+          Math.floor(progress / 20) - 1,
+          stages.length - 1
+        );
+
+        processingText.textContent = stages[index];
+
+        if (progress >= 100) {
+
+          clearInterval(interval);
+
+          setTimeout(() => {
+
+            processingBox.classList.add("hidden");
+
+            progressBar.style.width = "0%";
+            processingPercent.textContent = "0%";
+
+          }, 750);
+        }
+
+      }, 430);
+
+    });
+
+    clearFiles.addEventListener("click", () => {
+
+      documentList.innerHTML = "";
+
+      fileInput.value = "";
+
+      documentCount.textContent = "0";
+
+    });
+
+    /* ---------------------------------------------
+       SIDEBAR NAVIGATION
+    --------------------------------------------- */
+
+    const navButtons =
+      document.querySelectorAll(".nav-btn");
+
+    navButtons.forEach((button) => {
+
+      button.addEventListener("click", () => {
+
+        navButtons.forEach((item) => {
+          item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        const target =
+          document.getElementById(button.dataset.target);
+
+        if (target) {
+
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        }
+      });
+    });
+
+    /* ---------------------------------------------
+       EVIDENCE RETRIEVAL
+    --------------------------------------------- */
+
+    retrieveBtn.addEventListener("click", () => {
+
+      retrieveBtn.textContent = "Retrieving...";
+
+      retrieveBtn.disabled = true;
+
+      retrievalStatus.textContent =
+        "Searching evidence";
+
+      setTimeout(() => {
+
+        retrievalStatus.textContent =
+          "3 source passages retrieved";
+
+        retrieveBtn.textContent =
+          "Retrieval complete";
+
+        retrieveBtn.classList.remove("btn-primary");
+        retrieveBtn.classList.add("btn-success");
+
+        setTimeout(() => {
+
+          retrieveBtn.textContent =
+            "Run retrieval";
+
+          retrieveBtn.disabled = false;
+
+          retrieveBtn.classList.remove("btn-success");
+          retrieveBtn.classList.add("btn-primary");
+
+        }, 1600);
+
+      }, 1100);
+
+    });
+
+    /* ---------------------------------------------
+       DEMAND DRAFT GENERATION
+    --------------------------------------------- */
+
+    generateBtn.addEventListener("click", () => {
+
+      const tone =
+        document.getElementById("tone").value;
+
+      const evidenceMode =
+        document.getElementById("evidenceMode").value;
+
+      const structure =
+        document.getElementById("structure").value;
+
+      generateBtn.textContent =
+        "Generating...";
+
+      generateBtn.disabled = true;
+
+      setTimeout(() => {
+
+        draftEditor.value =
+`Dear Claims Representative,
+
+RE: Johnson v. Meridian — Demonstration Case
+
+GENERATED DEMONSTRATION DRAFT
+
+Configuration
+Tone: ${tone}
+Evidence mode: ${evidenceMode}
+Structure: ${structure}
+
+This synthetic demonstration draft was assembled from structured case facts and retrieved source evidence.
+
+The claimant, Jordan Johnson, was involved in a documented motor vehicle incident on May 14, 2026. The available medical records describe continued neck and shoulder symptoms, follow-up evaluation, orthopedic review, and supervised physical therapy.
+
+The records currently associated with the demonstration case document medical expenses totaling $18,640. The source materials also contain documentation regarding temporary work restrictions during the treatment period.
+
+The content above is intended to demonstrate how extracted case information and retrieved evidence can be assembled into a review-ready draft.
+
+SOURCE REFERENCES
+
+[1] medical-records-demo.pdf, p. 4
+[2] medical-records-demo.pdf, p. 8
+[3] billing-summary-demo.pdf, p. 2
+
+HUMAN REVIEW REQUIRED
+
+All factual statements, citations, calculations, and legal content should be verified against the underlying source materials before any external use.
+
+Sincerely,
+
+AI Demand Writing Automation
+Demonstration Draft`;
+
+        generateBtn.textContent =
+          "Generate draft";
+
+        generateBtn.disabled = false;
+
+        reviewState.innerHTML =
+          'Review state: <strong>New draft generated</strong>';
+
+      }, 1250);
+
+    });
+
+    /* ---------------------------------------------
+       RESET DRAFT
+    --------------------------------------------- */
+
+    resetDraftBtn.addEventListener("click", () => {
+
+      draftEditor.value = initialDraft;
+
+      reviewState.innerHTML =
+        'Review state: <strong>Draft</strong>';
+
+      approveBtn.textContent =
+        "Mark ready for review";
+
+      approveBtn.classList.remove("btn-primary");
+
+      approveBtn.classList.add("btn-success");
+
+    });
+
+    /* ---------------------------------------------
+       HUMAN REVIEW
+    --------------------------------------------- */
+
+    approveBtn.addEventListener("click", () => {
+
+      approveBtn.textContent =
+        "Ready for review ✓";
+
+      approveBtn.classList.remove("btn-success");
+
+      approveBtn.classList.add("btn-primary");
+
+      reviewState.innerHTML =
+        'Review state: <strong>Ready for human review</strong>';
+
+    });
+
+    /* ---------------------------------------------
+       EXPORT
+    --------------------------------------------- */
+
+    downloadBtn.addEventListener("click", () => {
+
+      const content = draftEditor.value;
+
+      const blob = new Blob(
+        [content],
+        {
+          type: "text/plain;charset=utf-8"
+        }
+      );
+
+      const url =
+        URL.createObjectURL(blob);
+
+      const anchor =
+        document.createElement("a");
+
+      anchor.href = url;
+
+      anchor.download =
+        "demand-letter-demo.txt";
+
+      document.body.appendChild(anchor);
+
+      anchor.click();
+
+      anchor.remove();
+
+      URL.revokeObjectURL(url);
+
+    });
+  </script>
+
+</body>
+</html>
