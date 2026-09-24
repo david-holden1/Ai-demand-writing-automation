@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>AI Demand Writing Demo</title>
+  <title>Demand Writing Studio — AI Demand Writing Automation</title>
 
   <meta
     name="description"
-    content="Interactive demonstration of an AI-powered demand writing workflow."
+    content="Interactive synthetic demonstration of an evidence-grounded AI demand writing workflow."
   />
 
   <style>
@@ -22,14 +22,21 @@
       --bg: #08101f;
       --panel: #0f192c;
       --panel-2: #121f37;
+      --panel-3: #0b1528;
       --border: rgba(255, 255, 255, 0.09);
+      --border-strong: rgba(124, 140, 255, 0.24);
       --text: #f4f7ff;
       --muted: #98a6c3;
+      --muted-2: #72819d;
       --accent: #7c8cff;
       --accent-2: #5ed7c0;
       --warning: #f3c76b;
       --danger: #ff9191;
       --shadow: 0 20px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -42,17 +49,45 @@
         "Segoe UI",
         sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(124, 140, 255, 0.14), transparent 30%),
-        radial-gradient(circle at top right, rgba(94, 215, 192, 0.08), transparent 28%),
+        radial-gradient(
+          circle at top left,
+          rgba(124, 140, 255, 0.13),
+          transparent 31%
+        ),
+        radial-gradient(
+          circle at top right,
+          rgba(94, 215, 192, 0.07),
+          transparent 28%
+        ),
         var(--bg);
       color: var(--text);
       min-height: 100vh;
       line-height: 1.55;
     }
 
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          rgba(255, 255, 255, 0.012) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.012) 1px,
+          transparent 1px
+        );
+      background-size: 32px 32px;
+      opacity: 0.22;
+    }
+
     button,
     input,
-    textarea {
+    textarea,
+    select {
       font: inherit;
     }
 
@@ -66,67 +101,110 @@
     }
 
     .shell {
-      width: min(1280px, 94%);
+      width: min(1380px, 95%);
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
+    /* --------------------------------------------------
+       TOP BAR
+    -------------------------------------------------- */
+
     .topbar {
-      height: 72px;
+      min-height: 74px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 20px;
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 20;
-      backdrop-filter: blur(16px);
-      background: rgba(8, 16, 31, 0.82);
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(8, 16, 31, 0.84);
     }
 
     .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
       font-weight: 800;
       letter-spacing: -0.02em;
+      white-space: nowrap;
     }
 
-    .brand span {
+    .brand-mark {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(124, 140, 255, 0.22),
+          rgba(94, 215, 192, 0.15)
+        );
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .brand-name span {
       color: var(--accent);
     }
 
     .top-actions {
       display: flex;
-      gap: 10px;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .top-link {
       color: var(--muted);
-      font-size: 13px;
-      padding: 8px 11px;
+      font-size: 12px;
+      padding: 8px 10px;
       border-radius: 9px;
+      transition: 0.2s ease;
     }
 
     .top-link:hover {
       color: var(--text);
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.045);
     }
 
+    /* --------------------------------------------------
+       GENERAL
+    -------------------------------------------------- */
+
     .page {
-      padding: 28px 0 60px;
+      padding: 28px 0 65px;
     }
 
     .notice {
-      border: 1px solid rgba(243, 199, 107, 0.22);
-      background: rgba(243, 199, 107, 0.05);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid rgba(243, 199, 107, 0.2);
+      background: rgba(243, 199, 107, 0.045);
       color: #d9c58f;
       border-radius: 14px;
-      padding: 13px 16px;
-      font-size: 13px;
+      padding: 13px 15px;
+      font-size: 12px;
       margin-bottom: 20px;
+    }
+
+    .notice strong {
+      color: var(--warning);
     }
 
     .workspace {
       display: grid;
-      grid-template-columns: 245px minmax(0, 1fr);
+      grid-template-columns: 252px minmax(0, 1fr);
       gap: 18px;
     }
 
@@ -135,51 +213,71 @@
     .metric,
     .document-card,
     .timeline-item,
-    .evidence-item {
+    .evidence-item,
+    .agent-card {
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.035);
       box-shadow: var(--shadow);
     }
 
+    /* --------------------------------------------------
+       SIDEBAR
+    -------------------------------------------------- */
+
     .sidebar {
-      border-radius: 18px;
-      padding: 16px;
       height: fit-content;
       position: sticky;
-      top: 92px;
+      top: 94px;
+      border-radius: 18px;
+      padding: 15px;
     }
 
     .case-mini {
-      padding: 14px;
+      padding: 15px;
       background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.045);
       border-radius: 13px;
-      margin-bottom: 18px;
+      margin-bottom: 17px;
+    }
+
+    .case-mini-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
     }
 
     .case-mini small {
       color: var(--muted);
-      display: block;
-      margin-bottom: 5px;
+      font-size: 11px;
+    }
+
+    .case-chip {
+      color: var(--accent-2);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .case-mini strong {
       display: block;
       font-size: 15px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .case-mini span {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .side-title {
-      color: var(--muted);
-      font-size: 11px;
+      color: var(--muted-2);
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.11em;
+      letter-spacing: 0.12em;
       font-weight: 800;
-      margin: 12px 10px 8px;
+      margin: 15px 9px 8px;
     }
 
     .nav-btn {
@@ -190,29 +288,50 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 11px 12px;
-      border-radius: 11px;
+      padding: 10px 11px;
+      border-radius: 10px;
       text-align: left;
-      font-size: 13px;
+      font-size: 12px;
       margin-bottom: 3px;
+      transition: 0.2s ease;
     }
 
     .nav-btn:hover,
     .nav-btn.active {
-      background: rgba(124, 140, 255, 0.12);
       color: var(--text);
+      background: rgba(124, 140, 255, 0.11);
+    }
+
+    .nav-btn.active .nav-num {
+      background: rgba(124, 140, 255, 0.16);
+      color: var(--accent);
     }
 
     .nav-num {
-      width: 24px;
-      height: 24px;
+      width: 25px;
+      height: 25px;
+      flex: 0 0 25px;
       display: grid;
       place-items: center;
       border-radius: 7px;
-      background: rgba(255, 255, 255, 0.06);
-      font-size: 11px;
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 10px;
       font-weight: 800;
     }
+
+    .sidebar-note {
+      margin-top: 18px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    /* --------------------------------------------------
+       MAIN HEADER
+    -------------------------------------------------- */
 
     .main {
       min-width: 0;
@@ -228,24 +347,31 @@
 
     .eyebrow {
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.13em;
       color: var(--accent-2);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       margin-bottom: 8px;
     }
 
     h1 {
-      font-size: clamp(31px, 4vw, 46px);
-      letter-spacing: -0.04em;
-      line-height: 1.05;
+      font-size: clamp(33px, 4.5vw, 51px);
+      letter-spacing: -0.045em;
+      line-height: 1.02;
     }
 
     .header-row p {
       color: var(--muted);
       margin-top: 9px;
-      max-width: 670px;
-      font-size: 14px;
+      max-width: 720px;
+      font-size: 13px;
+    }
+
+    .status-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
     }
 
     .status {
@@ -254,11 +380,16 @@
       gap: 7px;
       padding: 8px 11px;
       border-radius: 999px;
-      border: 1px solid rgba(94, 215, 192, 0.2);
-      background: rgba(94, 215, 192, 0.08);
+      border: 1px solid rgba(94, 215, 192, 0.18);
+      background: rgba(94, 215, 192, 0.07);
       color: var(--accent-2);
-      font-size: 12px;
+      font-size: 11px;
       white-space: nowrap;
+    }
+
+    .status-meta {
+      color: var(--muted-2);
+      font-size: 10px;
     }
 
     .dot {
@@ -266,43 +397,55 @@
       height: 7px;
       border-radius: 50%;
       background: currentColor;
+      box-shadow: 0 0 12px rgba(94, 215, 192, 0.45);
     }
+
+    /* --------------------------------------------------
+       METRICS
+    -------------------------------------------------- */
 
     .metrics {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: 11px;
       margin-bottom: 16px;
     }
 
     .metric {
       border-radius: 15px;
-      padding: 18px;
+      padding: 17px;
     }
 
     .metric small {
-      color: var(--muted);
       display: block;
-      font-size: 12px;
+      color: var(--muted);
+      font-size: 11px;
       margin-bottom: 7px;
     }
 
     .metric strong {
+      display: block;
       font-size: 27px;
+      line-height: 1;
       letter-spacing: -0.03em;
     }
 
     .metric span {
-      color: var(--muted);
-      font-size: 11px;
       display: block;
-      margin-top: 3px;
+      color: var(--muted-2);
+      font-size: 10px;
+      margin-top: 5px;
     }
+
+    /* --------------------------------------------------
+       PANEL
+    -------------------------------------------------- */
 
     .panel {
       border-radius: 18px;
       padding: 20px;
       margin-bottom: 16px;
+      scroll-margin-top: 94px;
     }
 
     .panel-head {
@@ -314,29 +457,38 @@
     }
 
     .panel-head h2 {
-      font-size: 19px;
+      font-size: 18px;
       letter-spacing: -0.02em;
     }
 
     .panel-head p {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       margin-top: 4px;
     }
 
+    /* --------------------------------------------------
+       BUTTONS
+    -------------------------------------------------- */
+
     .btn {
       border: 1px solid var(--border);
-      min-height: 40px;
+      min-height: 39px;
       border-radius: 10px;
-      padding: 0 14px;
+      padding: 0 13px;
       background: rgba(255, 255, 255, 0.04);
       color: var(--text);
       font-weight: 700;
-      font-size: 12px;
+      font-size: 11px;
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
     }
 
     .btn:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.075);
+      transform: translateY(-1px);
     }
 
     .btn-primary {
@@ -346,45 +498,50 @@
     }
 
     .btn-primary:hover {
-      background: #8995ff;
+      background: #8e99ff;
     }
 
     .btn-success {
-      background: rgba(94, 215, 192, 0.13);
+      background: rgba(94, 215, 192, 0.12);
       color: var(--accent-2);
-      border-color: rgba(94, 215, 192, 0.2);
+      border-color: rgba(94, 215, 192, 0.19);
     }
 
     .actions {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       flex-wrap: wrap;
     }
 
+    /* --------------------------------------------------
+       UPLOAD
+    -------------------------------------------------- */
+
     .dropzone {
-      border: 1.5px dashed rgba(124, 140, 255, 0.35);
+      border: 1.5px dashed rgba(124, 140, 255, 0.33);
       border-radius: 15px;
-      padding: 26px;
+      padding: 28px;
       text-align: center;
-      background: rgba(124, 140, 255, 0.045);
+      background: rgba(124, 140, 255, 0.042);
       transition: 0.2s ease;
     }
 
     .dropzone.dragover {
-      background: rgba(124, 140, 255, 0.1);
       border-color: var(--accent);
+      background: rgba(124, 140, 255, 0.09);
+      transform: translateY(-1px);
     }
 
     .upload-icon {
-      width: 44px;
-      height: 44px;
+      width: 45px;
+      height: 45px;
       margin: 0 auto 11px;
       display: grid;
       place-items: center;
       border-radius: 12px;
-      background: rgba(124, 140, 255, 0.13);
+      background: rgba(124, 140, 255, 0.12);
       color: var(--accent);
-      font-weight: 800;
+      font-weight: 900;
       font-size: 19px;
     }
 
@@ -395,7 +552,7 @@
 
     .dropzone p {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       margin-bottom: 14px;
     }
 
@@ -405,13 +562,13 @@
 
     .documents {
       display: grid;
-      gap: 9px;
-      margin-top: 14px;
+      gap: 8px;
+      margin-top: 13px;
     }
 
     .document-card {
       border-radius: 12px;
-      padding: 13px 14px;
+      padding: 12px 13px;
       display: flex;
       justify-content: space-between;
       gap: 12px;
@@ -420,8 +577,8 @@
 
     .doc-left {
       display: flex;
-      gap: 11px;
       align-items: center;
+      gap: 10px;
       min-width: 0;
     }
 
@@ -432,10 +589,10 @@
       display: grid;
       place-items: center;
       border-radius: 9px;
-      background: rgba(124, 140, 255, 0.11);
+      background: rgba(124, 140, 255, 0.1);
       color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
+      font-size: 10px;
+      font-weight: 900;
     }
 
     .doc-info {
@@ -444,7 +601,7 @@
 
     .doc-info strong {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -452,43 +609,91 @@
 
     .doc-info span {
       color: var(--muted);
-      font-size: 11px;
+      font-size: 10px;
     }
 
     .chip {
       padding: 5px 8px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.055);
       color: var(--muted);
-      font-size: 10px;
+      font-size: 9px;
       white-space: nowrap;
     }
+
+    .chip-success {
+      color: var(--accent-2);
+      background: rgba(94, 215, 192, 0.07);
+    }
+
+    /* --------------------------------------------------
+       PROCESSING
+    -------------------------------------------------- */
+
+    .processing {
+      margin-top: 11px;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.028);
+      font-size: 11px;
+    }
+
+    .processing-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+    }
+
+    .progress-track {
+      height: 6px;
+      margin-top: 9px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .progress {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(
+        90deg,
+        var(--accent),
+        var(--accent-2)
+      );
+      transition: width 0.35s ease;
+    }
+
+    /* --------------------------------------------------
+       FACTS
+    -------------------------------------------------- */
 
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 11px;
     }
 
     .fact-group {
       padding: 15px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.025);
+      background: rgba(255, 255, 255, 0.024);
     }
 
     .fact-group h3 {
-      font-size: 13px;
-      margin-bottom: 11px;
+      font-size: 12px;
+      margin-bottom: 9px;
     }
 
     .fact-row {
       display: flex;
       justify-content: space-between;
-      gap: 15px;
+      gap: 13px;
       padding: 8px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.055);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .fact-row:last-child {
@@ -501,91 +706,127 @@
     }
 
     .fact-row span:last-child {
+      color: var(--text);
       text-align: right;
       font-weight: 700;
     }
 
+    /* --------------------------------------------------
+       TIMELINE
+    -------------------------------------------------- */
+
     .timeline {
       display: grid;
-      gap: 10px;
+      gap: 9px;
     }
 
     .timeline-item {
       border-radius: 13px;
-      padding: 15px;
+      padding: 14px;
       display: grid;
-      grid-template-columns: 110px 1fr auto;
+      grid-template-columns: 112px 1fr auto;
       gap: 13px;
       align-items: center;
     }
 
     .timeline-date {
       font-weight: 800;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .timeline-main strong {
-      font-size: 13px;
       display: block;
+      font-size: 12px;
       margin-bottom: 2px;
     }
 
     .timeline-main span {
       color: var(--muted);
-      font-size: 11px;
+      font-size: 10px;
     }
 
     .timeline-tag {
-      padding: 6px 9px;
+      padding: 5px 8px;
       border-radius: 999px;
-      background: rgba(124, 140, 255, 0.1);
+      background: rgba(124, 140, 255, 0.09);
       color: var(--accent);
-      font-size: 10px;
+      font-size: 9px;
       white-space: nowrap;
     }
 
+    /* --------------------------------------------------
+       DAMAGES
+    -------------------------------------------------- */
+
     .damage-list {
       display: grid;
-      gap: 8px;
+      gap: 0;
     }
 
     .damage-row {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
-      padding: 13px 0;
+      padding: 12px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .damage-row:last-child {
-      border-bottom: 0;
     }
 
     .damage-row span {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .damage-row strong {
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .damage-total {
-      margin-top: 8px;
+      margin-top: 7px;
       padding-top: 14px;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
       font-weight: 800;
+    }
+
+    .damage-total span:last-child {
+      color: var(--accent-2);
+    }
+
+    /* --------------------------------------------------
+       EVIDENCE
+    -------------------------------------------------- */
+
+    .evidence-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.024);
+      border-radius: 12px;
+    }
+
+    .retrieval-status {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .retrieval-status strong {
+      color: var(--accent-2);
     }
 
     .evidence-grid {
       display: grid;
-      gap: 9px;
+      gap: 8px;
     }
 
     .evidence-item {
-      padding: 14px;
+      padding: 13px;
       border-radius: 13px;
     }
 
@@ -593,28 +834,69 @@
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
     }
 
     .source {
       color: var(--accent-2);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
     }
 
     .confidence {
       color: var(--muted);
-      font-size: 10px;
+      font-size: 9px;
+      white-space: nowrap;
     }
 
     .evidence-item p {
       color: #cad3e7;
-      font-size: 12px;
+      font-size: 11px;
+      line-height: 1.6;
     }
+
+    /* --------------------------------------------------
+       AI PIPELINE
+    -------------------------------------------------- */
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .agent-card {
+      padding: 14px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .agent-index {
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+
+    .agent-card h3 {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .agent-card p {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    /* --------------------------------------------------
+       DRAFT
+    -------------------------------------------------- */
 
     .draft-layout {
       display: grid;
-      grid-template-columns: 0.9fr 1.5fr;
+      grid-template-columns: 0.8fr 1.65fr;
       gap: 12px;
     }
 
@@ -622,95 +904,103 @@
       padding: 15px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.025);
+      background: rgba(255, 255, 255, 0.024);
     }
 
     .control-label {
       display: block;
       color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 6px;
+      font-size: 10px;
+      margin-bottom: 5px;
     }
 
     select,
     textarea {
       width: 100%;
       border: 1px solid var(--border);
-      background: #0a1425;
+      background: var(--panel-3);
       color: var(--text);
       border-radius: 10px;
       outline: none;
     }
 
     select {
-      min-height: 38px;
-      padding: 0 10px;
-      margin-bottom: 13px;
+      min-height: 37px;
+      padding: 0 9px;
+      margin-bottom: 12px;
+      font-size: 11px;
     }
 
     textarea {
-      min-height: 455px;
-      padding: 15px;
+      min-height: 470px;
+      padding: 14px;
       resize: vertical;
-      font-size: 12px;
-      line-height: 1.65;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: var(--border-strong);
+      box-shadow: 0 0 0 3px rgba(124, 140, 255, 0.07);
     }
 
     .review-box {
       display: flex;
-      gap: 9px;
+      gap: 7px;
       flex-wrap: wrap;
-      margin-top: 13px;
+      margin-top: 12px;
     }
 
     .review-pill {
-      padding: 8px 10px;
-      border-radius: 10px;
+      padding: 7px 9px;
+      border-radius: 9px;
       background: rgba(255, 255, 255, 0.04);
       color: var(--muted);
-      font-size: 11px;
+      font-size: 9px;
     }
 
     .review-pill strong {
       color: var(--text);
     }
 
+    .review-state {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .review-state strong {
+      color: var(--text);
+    }
+
+    /* --------------------------------------------------
+       EMPTY / HIDDEN
+    -------------------------------------------------- */
+
     .hidden {
       display: none !important;
     }
 
-    .processing {
-      margin-top: 12px;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      font-size: 12px;
-    }
-
-    .progress-track {
-      height: 6px;
-      border-radius: 99px;
-      background: rgba(255, 255, 255, 0.07);
-      overflow: hidden;
-      margin-top: 9px;
-    }
-
-    .progress {
-      height: 100%;
-      width: 0%;
-      background: var(--accent);
-      transition: width 0.35s ease;
-    }
+    /* --------------------------------------------------
+       FOOTER
+    -------------------------------------------------- */
 
     .footer-note {
-      margin-top: 26px;
-      color: var(--muted);
+      margin-top: 28px;
+      color: var(--muted-2);
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
     }
 
-    @media (max-width: 1050px) {
+    /* --------------------------------------------------
+       RESPONSIVE
+    -------------------------------------------------- */
+
+    @media (max-width: 1100px) {
       .workspace {
         grid-template-columns: 1fr;
       }
@@ -719,31 +1009,45 @@
         position: static;
       }
 
-      .metrics {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
       .sidebar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      .case-mini,
-      .side-title {
-        width: 100%;
+        display: block;
       }
 
       .nav-btn {
         width: auto;
-        flex: 1;
+        display: inline-flex;
+        margin-right: 4px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .agent-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .draft-layout {
+        grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 760px) {
+      .top-actions .top-link {
+        display: none;
+      }
+
+      .header-row {
+        flex-direction: column;
+      }
+
+      .status-stack {
+        align-items: flex-start;
+      }
+
       .grid-2,
-      .draft-layout,
-      .metrics {
+      .metrics,
+      .agent-grid {
         grid-template-columns: 1fr;
       }
 
@@ -756,8 +1060,12 @@
         width: fit-content;
       }
 
-      .top-actions .top-link {
-        display: none;
+      .panel {
+        padding: 15px;
+      }
+
+      .topbar {
+        min-height: 66px;
       }
     }
   </style>
@@ -767,15 +1075,33 @@
 
   <div class="shell">
 
+    <!-- TOP BAR -->
+
     <header class="topbar">
+
       <a href="index.html" class="brand">
-        AI Demand <span>Automation</span>
+
+        <div class="brand-mark">AI</div>
+
+        <div class="brand-name">
+          Demand <span>Automation</span>
+        </div>
+
       </a>
 
       <div class="top-actions">
-        <a href="index.html" class="top-link">Project Home</a>
-        <a href="architecture.html" class="top-link">Architecture</a>
-        <a href="documentation.html" class="top-link">Docs</a>
+
+        <a href="index.html" class="top-link">
+          Home
+        </a>
+
+        <a href="architecture.html" class="top-link">
+          Architecture
+        </a>
+
+        <a href="documentation.html" class="top-link">
+          Documentation
+        </a>
 
         <a
           href="https://github.com/david-holden1/Ai-demand-writing-automation"
@@ -785,145 +1111,295 @@
         >
           GitHub
         </a>
+
       </div>
+
     </header>
 
     <main class="page">
 
+      <!-- DEMO NOTICE -->
+
       <div class="notice">
-        <strong>Demo environment:</strong>
-        This interface uses synthetic demonstration data. It is designed
-        to showcase the intended product workflow and is not legal advice.
+
+        <span>●</span>
+
+        <div>
+          <strong>Synthetic demonstration:</strong>
+          This workspace uses fictional, non-identifying case data to
+          demonstrate the intended AI document workflow. It is not legal advice.
+        </div>
+
       </div>
 
       <div class="workspace">
 
+        <!-- SIDEBAR -->
+
         <aside class="sidebar">
 
           <div class="case-mini">
-            <small>Active case</small>
-            <strong>Johnson v. Meridian</strong>
-            <span>CASE-2026-0148 · Demo</span>
+
+            <div class="case-mini-top">
+
+              <small>Active case</small>
+
+              <span class="case-chip">
+                Demo
+              </span>
+
+            </div>
+
+            <strong>
+              Johnson v. Meridian
+            </strong>
+
+            <span>
+              CASE-2026-0148
+            </span>
+
           </div>
 
-          <div class="side-title">Workspace</div>
+          <div class="side-title">
+            Workflow
+          </div>
 
-          <button class="nav-btn active" data-target="documentsPanel">
+          <button
+            class="nav-btn active"
+            data-target="documentsPanel"
+          >
             <span class="nav-num">01</span>
             Documents
           </button>
 
-          <button class="nav-btn" data-target="factsPanel">
+          <button
+            class="nav-btn"
+            data-target="factsPanel"
+          >
             <span class="nav-num">02</span>
             Case Facts
           </button>
 
-          <button class="nav-btn" data-target="timelinePanel">
+          <button
+            class="nav-btn"
+            data-target="timelinePanel"
+          >
             <span class="nav-num">03</span>
             Timeline
           </button>
 
-          <button class="nav-btn" data-target="evidencePanel">
+          <button
+            class="nav-btn"
+            data-target="evidencePanel"
+          >
             <span class="nav-num">04</span>
             Evidence
           </button>
 
-          <button class="nav-btn" data-target="draftPanel">
+          <button
+            class="nav-btn"
+            data-target="agentsPanel"
+          >
             <span class="nav-num">05</span>
+            AI Pipeline
+          </button>
+
+          <button
+            class="nav-btn"
+            data-target="draftPanel"
+          >
+            <span class="nav-num">06</span>
             Demand Draft
           </button>
 
+          <div class="sidebar-note">
+
+            <strong style="color: var(--text);">
+              Demo architecture
+            </strong>
+
+            <br />
+
+            Document ingestion → extraction → retrieval →
+            AI orchestration → human review
+
+          </div>
+
         </aside>
 
+        <!-- MAIN -->
+
         <section class="main">
+
+          <!-- HEADER -->
 
           <div class="header-row">
 
             <div>
-              <div class="eyebrow">AI-assisted case workspace</div>
+
+              <div class="eyebrow">
+                AI-assisted case workspace
+              </div>
 
               <h1>
                 Demand Writing Studio
               </h1>
 
               <p>
-                Upload case materials, extract structured facts, retrieve
-                supporting evidence, and generate a review-ready demand
-                letter draft.
+                Experience a synthetic end-to-end workflow for document
+                ingestion, case extraction, evidence retrieval, AI drafting,
+                and human review.
               </p>
+
             </div>
 
-            <div class="status">
-              <span class="dot"></span>
-              Demo Ready
+            <div class="status-stack">
+
+              <div class="status">
+                <span class="dot"></span>
+                Demo Environment
+              </div>
+
+              <div class="status-meta">
+                Source-grounded workflow simulation
+              </div>
+
             </div>
 
           </div>
+
+          <!-- METRICS -->
 
           <div class="metrics">
 
             <div class="metric">
-              <small>Documents</small>
-              <strong id="documentCount">3</strong>
-              <span>processed sources</span>
+
+              <small>
+                Documents
+              </small>
+
+              <strong id="documentCount">
+                3
+              </strong>
+
+              <span>
+                processed sources
+              </span>
+
             </div>
 
             <div class="metric">
-              <small>Evidence chunks</small>
-              <strong id="chunkCount">47</strong>
-              <span>retrieval-ready passages</span>
+
+              <small>
+                Evidence chunks
+              </small>
+
+              <strong>
+                47
+              </strong>
+
+              <span>
+                retrieval-ready passages
+              </span>
+
             </div>
 
             <div class="metric">
-              <small>Medical expenses</small>
-              <strong>$18,640</strong>
-              <span>documented demo total</span>
+
+              <small>
+                Medical expenses
+              </small>
+
+              <strong>
+                $18,640
+              </strong>
+
+              <span>
+                synthetic demo total
+              </span>
+
             </div>
 
             <div class="metric">
-              <small>AI confidence</small>
-              <strong>94%</strong>
-              <span>source-grounded extraction</span>
+
+              <small>
+                Extraction confidence
+              </small>
+
+              <strong>
+                94%
+              </strong>
+
+              <span>
+                simulated source confidence
+              </span>
+
             </div>
 
           </div>
 
-          <!-- Documents -->
+          <!-- DOCUMENTS -->
 
-          <section class="panel" id="documentsPanel">
+          <section
+            class="panel"
+            id="documentsPanel"
+          >
 
             <div class="panel-head">
 
               <div>
-                <h2>Case documents</h2>
-                <p>Upload the evidence used by the AI workflow.</p>
+
+                <h2>
+                  Case documents
+                </h2>
+
+                <p>
+                  Upload synthetic or de-identified PDF and DOCX materials.
+                </p>
+
               </div>
 
               <div class="actions">
-                <button class="btn" id="clearFiles">
+
+                <button
+                  class="btn"
+                  id="clearFiles"
+                >
                   Clear
                 </button>
 
-                <button class="btn btn-primary" id="processBtn">
+                <button
+                  class="btn btn-primary"
+                  id="processBtn"
+                >
                   Process documents
                 </button>
+
               </div>
 
             </div>
 
-            <div class="dropzone" id="dropzone">
+            <div
+              class="dropzone"
+              id="dropzone"
+            >
 
-              <div class="upload-icon">↑</div>
+              <div class="upload-icon">
+                ↑
+              </div>
 
               <h3>
-                Drop PDF or DOCX files here
+                Drop case documents here
               </h3>
 
               <p>
-                Synthetic or de-identified case materials recommended.
+                Supported: PDF, DOC, DOCX
               </p>
 
-              <button class="btn" id="browseBtn">
+              <button
+                class="btn"
+                id="browseBtn"
+              >
                 Browse files
               </button>
 
@@ -936,77 +1412,149 @@
 
             </div>
 
-            <div id="processingBox" class="processing hidden">
+            <div
+              id="processingBox"
+              class="processing hidden"
+            >
 
-              <div id="processingText">
-                Preparing document pipeline...
+              <div class="processing-top">
+
+                <span id="processingText">
+                  Preparing document pipeline...
+                </span>
+
+                <span id="processingPercent">
+                  0%
+                </span>
+
               </div>
 
               <div class="progress-track">
-                <div class="progress" id="progressBar"></div>
+                <div
+                  class="progress"
+                  id="progressBar"
+                ></div>
               </div>
 
             </div>
 
-            <div class="documents" id="documentList">
+            <div
+              class="documents"
+              id="documentList"
+            >
 
               <div class="document-card">
+
                 <div class="doc-left">
-                  <div class="doc-icon">PDF</div>
+
+                  <div class="doc-icon">
+                    PDF
+                  </div>
 
                   <div class="doc-info">
-                    <strong>medical-records-demo.pdf</strong>
-                    <span>12 pages · processed</span>
+
+                    <strong>
+                      medical-records-demo.pdf
+                    </strong>
+
+                    <span>
+                      12 pages · processed
+                    </span>
+
                   </div>
+
                 </div>
 
-                <span class="chip">Processed</span>
+                <span class="chip chip-success">
+                  Processed
+                </span>
+
               </div>
 
               <div class="document-card">
+
                 <div class="doc-left">
-                  <div class="doc-icon">PDF</div>
+
+                  <div class="doc-icon">
+                    PDF
+                  </div>
 
                   <div class="doc-info">
-                    <strong>billing-summary-demo.pdf</strong>
-                    <span>4 pages · processed</span>
+
+                    <strong>
+                      billing-summary-demo.pdf
+                    </strong>
+
+                    <span>
+                      4 pages · processed
+                    </span>
+
                   </div>
+
                 </div>
 
-                <span class="chip">Processed</span>
+                <span class="chip chip-success">
+                  Processed
+                </span>
+
               </div>
 
               <div class="document-card">
+
                 <div class="doc-left">
-                  <div class="doc-icon">DOCX</div>
+
+                  <div class="doc-icon">
+                    DOCX
+                  </div>
 
                   <div class="doc-info">
-                    <strong>incident-report-demo.docx</strong>
-                    <span>3 pages · processed</span>
+
+                    <strong>
+                      incident-report-demo.docx
+                    </strong>
+
+                    <span>
+                      3 pages · processed
+                    </span>
+
                   </div>
+
                 </div>
 
-                <span class="chip">Processed</span>
+                <span class="chip chip-success">
+                  Processed
+                </span>
+
               </div>
 
             </div>
 
           </section>
 
-          <!-- Facts -->
+          <!-- FACTS -->
 
-          <section class="panel" id="factsPanel">
+          <section
+            class="panel"
+            id="factsPanel"
+          >
 
             <div class="panel-head">
 
               <div>
-                <h2>Extracted case facts</h2>
+
+                <h2>
+                  Extracted case facts
+                </h2>
+
                 <p>
                   Structured entities generated from the document pipeline.
                 </p>
+
               </div>
 
-              <span class="chip">AI extracted</span>
+              <span class="chip chip-success">
+                AI extracted
+              </span>
 
             </div>
 
@@ -1014,7 +1562,9 @@
 
               <div class="fact-group">
 
-                <h3>Claimant</h3>
+                <h3>
+                  Claimant
+                </h3>
 
                 <div class="fact-row">
                   <span>Name</span>
@@ -1040,7 +1590,9 @@
 
               <div class="fact-group">
 
-                <h3>Treatment</h3>
+                <h3>
+                  Treatment
+                </h3>
 
                 <div class="fact-row">
                   <span>Initial provider</span>
@@ -1066,7 +1618,9 @@
 
               <div class="fact-group">
 
-                <h3>Documented impact</h3>
+                <h3>
+                  Documented impact
+                </h3>
 
                 <div class="fact-row">
                   <span>Lost work</span>
@@ -1092,7 +1646,9 @@
 
               <div class="fact-group">
 
-                <h3>Damages</h3>
+                <h3>
+                  Damages
+                </h3>
 
                 <div class="fact-row">
                   <span>Medical</span>
@@ -1120,17 +1676,25 @@
 
           </section>
 
-          <!-- Timeline -->
+          <!-- TIMELINE -->
 
-          <section class="panel" id="timelinePanel">
+          <section
+            class="panel"
+            id="timelinePanel"
+          >
 
             <div class="panel-head">
 
               <div>
-                <h2>Case timeline</h2>
+
+                <h2>
+                  Case timeline
+                </h2>
+
                 <p>
-                  Chronological events assembled from source documents.
+                  Chronological events assembled from the source documents.
                 </p>
+
               </div>
 
               <button class="btn">
@@ -1142,88 +1706,150 @@
             <div class="timeline">
 
               <div class="timeline-item">
-                <div class="timeline-date">May 14, 2026</div>
+
+                <div class="timeline-date">
+                  May 14, 2026
+                </div>
 
                 <div class="timeline-main">
-                  <strong>Incident recorded</strong>
+
+                  <strong>
+                    Incident recorded
+                  </strong>
+
                   <span>
                     Motor vehicle collision documented in incident report.
                   </span>
+
                 </div>
 
-                <div class="timeline-tag">Incident</div>
+                <div class="timeline-tag">
+                  Incident
+                </div>
+
               </div>
 
               <div class="timeline-item">
-                <div class="timeline-date">May 15, 2026</div>
+
+                <div class="timeline-date">
+                  May 15, 2026
+                </div>
 
                 <div class="timeline-main">
-                  <strong>Emergency evaluation</strong>
+
+                  <strong>
+                    Emergency evaluation
+                  </strong>
+
                   <span>
                     Initial evaluation documented neck and shoulder pain.
                   </span>
+
                 </div>
 
-                <div class="timeline-tag">Medical</div>
+                <div class="timeline-tag">
+                  Medical
+                </div>
+
               </div>
 
               <div class="timeline-item">
-                <div class="timeline-date">May 28, 2026</div>
+
+                <div class="timeline-date">
+                  May 28, 2026
+                </div>
 
                 <div class="timeline-main">
-                  <strong>Specialist referral</strong>
+
+                  <strong>
+                    Specialist referral
+                  </strong>
+
                   <span>
                     Orthopedic follow-up ordered following continued symptoms.
                   </span>
+
                 </div>
 
-                <div class="timeline-tag">Referral</div>
+                <div class="timeline-tag">
+                  Referral
+                </div>
+
               </div>
 
               <div class="timeline-item">
-                <div class="timeline-date">Jun 03, 2026</div>
+
+                <div class="timeline-date">
+                  Jun 03, 2026
+                </div>
 
                 <div class="timeline-main">
-                  <strong>Physical therapy initiated</strong>
+
+                  <strong>
+                    Physical therapy initiated
+                  </strong>
+
                   <span>
                     Treatment plan includes supervised rehabilitation sessions.
                   </span>
+
                 </div>
 
-                <div class="timeline-tag">Treatment</div>
+                <div class="timeline-tag">
+                  Treatment
+                </div>
+
               </div>
 
               <div class="timeline-item">
-                <div class="timeline-date">Jul 11, 2026</div>
+
+                <div class="timeline-date">
+                  Jul 11, 2026
+                </div>
 
                 <div class="timeline-main">
-                  <strong>Work restrictions updated</strong>
+
+                  <strong>
+                    Work restrictions updated
+                  </strong>
+
                   <span>
                     Medical records document continued lifting restrictions.
                   </span>
+
                 </div>
 
-                <div class="timeline-tag">Impact</div>
+                <div class="timeline-tag">
+                  Impact
+                </div>
+
               </div>
 
             </div>
 
           </section>
 
-          <!-- Damages -->
+          <!-- DAMAGES -->
 
           <section class="panel">
 
             <div class="panel-head">
 
               <div>
-                <h2>Documented damages</h2>
+
+                <h2>
+                  Documented damages
+                </h2>
+
                 <p>
                   Structured financial information extracted from source records.
                 </p>
+
               </div>
 
-              <span class="chip">Source-backed</span>
+              <span class="chip">
+                Source-backed
+              </span>
 
             </div>
 
@@ -1250,40 +1876,81 @@
               </div>
 
               <div class="damage-total">
-                <span>Total documented medical expenses</span>
-                <span>$18,640</span>
+                <span>
+                  Total documented medical expenses
+                </span>
+
+                <span>
+                  $18,640
+                </span>
               </div>
 
             </div>
 
           </section>
 
-          <!-- Evidence -->
+          <!-- EVIDENCE -->
 
-          <section class="panel" id="evidencePanel">
+          <section
+            class="panel"
+            id="evidencePanel"
+          >
 
             <div class="panel-head">
 
               <div>
-                <h2>Evidence retrieval</h2>
+
+                <h2>
+                  Evidence retrieval
+                </h2>
+
                 <p>
-                  Example source passages retrieved to ground generated claims.
+                  Retrieved source passages used to ground AI-generated claims.
                 </p>
+
               </div>
 
-              <button class="btn" id="retrieveBtn">
+              <button
+                class="btn btn-primary"
+                id="retrieveBtn"
+              >
                 Run retrieval
               </button>
 
             </div>
 
-            <div class="evidence-grid" id="evidenceList">
+            <div class="evidence-toolbar">
+
+              <div class="retrieval-status">
+                Retrieval status:
+                <strong id="retrievalStatus">
+                  Ready
+                </strong>
+              </div>
+
+              <div class="chip">
+                pgvector simulation
+              </div>
+
+            </div>
+
+            <div
+              class="evidence-grid"
+              id="evidenceList"
+            >
 
               <div class="evidence-item">
 
                 <div class="evidence-top">
-                  <span class="source">medical-records-demo.pdf · p. 4</span>
-                  <span class="confidence">Similarity 0.94</span>
+
+                  <span class="source">
+                    medical-records-demo.pdf · p. 4
+                  </span>
+
+                  <span class="confidence">
+                    Similarity 0.94
+                  </span>
+
                 </div>
 
                 <p>
@@ -1296,8 +1963,15 @@
               <div class="evidence-item">
 
                 <div class="evidence-top">
-                  <span class="source">medical-records-demo.pdf · p. 8</span>
-                  <span class="confidence">Similarity 0.91</span>
+
+                  <span class="source">
+                    medical-records-demo.pdf · p. 8
+                  </span>
+
+                  <span class="confidence">
+                    Similarity 0.91
+                  </span>
+
                 </div>
 
                 <p>
@@ -1310,8 +1984,15 @@
               <div class="evidence-item">
 
                 <div class="evidence-top">
-                  <span class="source">billing-summary-demo.pdf · p. 2</span>
-                  <span class="confidence">Similarity 0.88</span>
+
+                  <span class="source">
+                    billing-summary-demo.pdf · p. 2
+                  </span>
+
+                  <span class="confidence">
+                    Similarity 0.88
+                  </span>
+
                 </div>
 
                 <p>
@@ -1325,27 +2006,149 @@
 
           </section>
 
-          <!-- Demand Draft -->
+          <!-- AI PIPELINE -->
 
-          <section class="panel" id="draftPanel">
+          <section
+            class="panel"
+            id="agentsPanel"
+          >
 
             <div class="panel-head">
 
               <div>
-                <h2>Demand letter generator</h2>
+
+                <h2>
+                  Multi-agent AI pipeline
+                </h2>
+
                 <p>
-                  Generate a synthetic, evidence-grounded draft for review.
+                  Specialized workflow stages designed to separate extraction,
+                  retrieval, drafting, and validation.
+                </p>
+
+              </div>
+
+              <span class="chip">
+                LangGraph concept
+              </span>
+
+            </div>
+
+            <div class="agent-grid">
+
+              <div class="agent-card">
+                <div class="agent-index">01</div>
+
+                <h3>
+                  Document Agent
+                </h3>
+
+                <p>
+                  Classifies uploaded documents and prepares content for analysis.
                 </p>
               </div>
 
+              <div class="agent-card">
+                <div class="agent-index">02</div>
+
+                <h3>
+                  Extraction Agent
+                </h3>
+
+                <p>
+                  Produces structured entities from source material.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">03</div>
+
+                <h3>
+                  Timeline Agent
+                </h3>
+
+                <p>
+                  Converts documented events into chronological case history.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">04</div>
+
+                <h3>
+                  Damages Agent
+                </h3>
+
+                <p>
+                  Organizes supported medical and financial information.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">05</div>
+
+                <h3>
+                  Retrieval Agent
+                </h3>
+
+                <p>
+                  Finds source passages relevant to requested case facts.
+                </p>
+              </div>
+
+              <div class="agent-card">
+                <div class="agent-index">06</div>
+
+                <h3>
+                  Drafting Agent
+                </h3>
+
+                <p>
+                  Produces a structured draft using retrieved evidence.
+                </p>
+              </div>
+
+            </div>
+
+          </section>
+
+          <!-- DEMAND DRAFT -->
+
+          <section
+            class="panel"
+            id="draftPanel"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <h2>
+                  Demand letter generator
+                </h2>
+
+                <p>
+                  Generate and edit a synthetic evidence-grounded draft.
+                </p>
+
+              </div>
+
               <div class="actions">
-                <button class="btn" id="resetDraft">
+
+                <button
+                  class="btn"
+                  id="resetDraft"
+                >
                   Reset
                 </button>
 
-                <button class="btn btn-primary" id="generateBtn">
+                <button
+                  class="btn btn-primary"
+                  id="generateBtn"
+                >
                   Generate draft
                 </button>
+
               </div>
 
             </div>
@@ -1359,9 +2162,19 @@
                 </label>
 
                 <select id="tone">
-                  <option>Professional</option>
-                  <option>Concise</option>
-                  <option>Detailed</option>
+
+                  <option>
+                    Professional
+                  </option>
+
+                  <option>
+                    Concise
+                  </option>
+
+                  <option>
+                    Detailed
+                  </option>
+
                 </select>
 
                 <label class="control-label">
@@ -1369,8 +2182,15 @@
                 </label>
 
                 <select id="evidenceMode">
-                  <option>Strict source grounding</option>
-                  <option>Source grounding + synthesis</option>
+
+                  <option>
+                    Strict source grounding
+                  </option>
+
+                  <option>
+                    Source grounding + synthesis
+                  </option>
+
                 </select>
 
                 <label class="control-label">
@@ -1378,9 +2198,19 @@
                 </label>
 
                 <select id="structure">
-                  <option>Standard demand letter</option>
-                  <option>Executive summary + demand</option>
-                  <option>Detailed chronology + demand</option>
+
+                  <option>
+                    Standard demand letter
+                  </option>
+
+                  <option>
+                    Executive summary + demand
+                  </option>
+
+                  <option>
+                    Detailed chronology + demand
+                  </option>
+
                 </select>
 
                 <div class="review-box">
@@ -1399,12 +2229,25 @@
 
                 </div>
 
+                <div
+                  class="review-state"
+                  id="reviewState"
+                >
+                  Review state:
+                  <strong>
+                    Draft
+                  </strong>
+                </div>
+
               </div>
 
               <div>
+
                 <textarea id="draftEditor">Dear Claims Representative,
 
 RE: Johnson v. Meridian — Demonstration Case
+
+DEMONSTRATION DRAFT
 
 This document is a synthetic demonstration of an evidence-grounded demand letter workflow.
 
@@ -1412,12 +2255,15 @@ Based on the uploaded case materials, the claimant, Jordan Johnson, was involved
 
 The available records indicate documented medical expenses totaling $18,640. The treatment records also describe temporary work restrictions and continued rehabilitation during the documented recovery period.
 
-The statements above are intended to demonstrate how extracted case facts and retrieved source evidence can be assembled into a structured draft.
+The statements above demonstrate how extracted case facts and retrieved source evidence can be assembled into a structured draft.
 
-Supporting evidence:
+SOURCE REFERENCES
+
 [1] medical-records-demo.pdf, p. 4
 [2] medical-records-demo.pdf, p. 8
 [3] billing-summary-demo.pdf, p. 2
+
+HUMAN REVIEW REQUIRED
 
 A human reviewer should verify all facts, citations, calculations, and legal content before any external use.
 
@@ -1425,17 +2271,27 @@ Sincerely,
 
 AI Demand Writing Automation
 Demonstration Draft</textarea>
+
               </div>
 
             </div>
 
-            <div class="actions" style="margin-top: 13px;">
+            <div
+              class="actions"
+              style="margin-top: 13px;"
+            >
 
-              <button class="btn btn-success" id="approveBtn">
+              <button
+                class="btn btn-success"
+                id="approveBtn"
+              >
                 Mark ready for review
               </button>
 
-              <button class="btn" id="downloadBtn">
+              <button
+                class="btn"
+                id="downloadBtn"
+              >
                 Export draft
               </button>
 
@@ -1448,8 +2304,7 @@ Demonstration Draft</textarea>
       </div>
 
       <div class="footer-note">
-        AI Demand Writing Automation · Interactive portfolio demonstration ·
-        Synthetic data only
+        AI Demand Writing Automation · Interactive portfolio demonstration · Synthetic data only
       </div>
 
     </main>
@@ -1462,11 +2317,32 @@ Demonstration Draft</textarea>
     const dropzone = document.getElementById("dropzone");
     const documentList = document.getElementById("documentList");
     const documentCount = document.getElementById("documentCount");
+
     const processBtn = document.getElementById("processBtn");
     const clearFiles = document.getElementById("clearFiles");
+
     const processingBox = document.getElementById("processingBox");
     const processingText = document.getElementById("processingText");
+    const processingPercent = document.getElementById("processingPercent");
     const progressBar = document.getElementById("progressBar");
+
+    const retrieveBtn = document.getElementById("retrieveBtn");
+    const retrievalStatus = document.getElementById("retrievalStatus");
+
+    const generateBtn = document.getElementById("generateBtn");
+    const resetDraftBtn = document.getElementById("resetDraft");
+    const draftEditor = document.getElementById("draftEditor");
+
+    const approveBtn = document.getElementById("approveBtn");
+    const reviewState = document.getElementById("reviewState");
+
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    const initialDraft = draftEditor.value;
+
+    /* ---------------------------------------------
+       FILE UPLOAD
+    --------------------------------------------- */
 
     browseBtn.addEventListener("click", () => {
       fileInput.click();
@@ -1500,7 +2376,10 @@ Demonstration Draft</textarea>
       }
 
       Array.from(files).forEach((file) => {
-        const extension = file.name.split(".").pop().toUpperCase();
+        const extension = file.name
+          .split(".")
+          .pop()
+          .toUpperCase();
 
         if (!["PDF", "DOCX", "DOC"].includes(extension)) {
           return;
@@ -1519,12 +2398,18 @@ Demonstration Draft</textarea>
             </div>
           </div>
 
-          <span class="chip">Ready</span>
+          <span class="chip">
+            Ready
+          </span>
         `;
 
         documentList.appendChild(card);
       });
 
+      updateDocumentCount();
+    }
+
+    function updateDocumentCount() {
       documentCount.textContent =
         documentList.querySelectorAll(".document-card").length;
     }
@@ -1544,7 +2429,7 @@ Demonstration Draft</textarea>
     }
 
     function escapeHtml(value) {
-      return value
+      return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -1552,7 +2437,30 @@ Demonstration Draft</textarea>
         .replaceAll("'", "&#039;");
     }
 
+    /* ---------------------------------------------
+       DOCUMENT PROCESSING
+    --------------------------------------------- */
+
     processBtn.addEventListener("click", () => {
+
+      if (!documentList.querySelectorAll(".document-card").length) {
+        processingBox.classList.remove("hidden");
+
+        processingText.textContent =
+          "No files selected — loading synthetic demonstration dataset.";
+
+        progressBar.style.width = "100%";
+        processingPercent.textContent = "100%";
+
+        setTimeout(() => {
+          processingBox.classList.add("hidden");
+          progressBar.style.width = "0%";
+          processingPercent.textContent = "0%";
+        }, 1100);
+
+        return;
+      }
+
       processingBox.classList.remove("hidden");
 
       let progress = 0;
@@ -1560,48 +2468,63 @@ Demonstration Draft</textarea>
       const stages = [
         "Parsing documents...",
         "Extracting structured facts...",
-        "Generating timeline...",
+        "Building case timeline...",
         "Indexing evidence chunks...",
         "Preparing retrieval context...",
         "Processing complete."
       ];
 
       const interval = setInterval(() => {
+
         progress += 20;
 
         progressBar.style.width = `${progress}%`;
+        processingPercent.textContent = `${progress}%`;
 
-        const stageIndex = Math.min(
+        const index = Math.min(
           Math.floor(progress / 20) - 1,
           stages.length - 1
         );
 
-        processingText.textContent = stages[stageIndex];
+        processingText.textContent = stages[index];
 
         if (progress >= 100) {
+
           clearInterval(interval);
 
           setTimeout(() => {
+
             processingBox.classList.add("hidden");
+
             progressBar.style.width = "0%";
-            processingText.textContent =
-              "Preparing document pipeline...";
-          }, 700);
+            processingPercent.textContent = "0%";
+
+          }, 750);
         }
-      }, 420);
+
+      }, 430);
+
     });
 
     clearFiles.addEventListener("click", () => {
+
       documentList.innerHTML = "";
+
+      fileInput.value = "";
 
       documentCount.textContent = "0";
 
-      fileInput.value = "";
     });
 
-    const navButtons = document.querySelectorAll(".nav-btn");
+    /* ---------------------------------------------
+       SIDEBAR NAVIGATION
+    --------------------------------------------- */
+
+    const navButtons =
+      document.querySelectorAll(".nav-btn");
 
     navButtons.forEach((button) => {
+
       button.addEventListener("click", () => {
 
         navButtons.forEach((item) => {
@@ -1610,41 +2533,79 @@ Demonstration Draft</textarea>
 
         button.classList.add("active");
 
-        const target = document.getElementById(
-          button.dataset.target
-        );
+        const target =
+          document.getElementById(button.dataset.target);
 
         if (target) {
+
           target.scrollIntoView({
             behavior: "smooth",
             block: "start"
           });
+
         }
       });
     });
 
-    document.getElementById("retrieveBtn").addEventListener("click", (event) => {
+    /* ---------------------------------------------
+       EVIDENCE RETRIEVAL
+    --------------------------------------------- */
 
-      const button = event.currentTarget;
+    retrieveBtn.addEventListener("click", () => {
 
-      button.textContent = "Retrieving...";
+      retrieveBtn.textContent = "Retrieving...";
+
+      retrieveBtn.disabled = true;
+
+      retrievalStatus.textContent =
+        "Searching evidence";
 
       setTimeout(() => {
-        button.textContent = "Retrieval complete";
+
+        retrievalStatus.textContent =
+          "3 source passages retrieved";
+
+        retrieveBtn.textContent =
+          "Retrieval complete";
+
+        retrieveBtn.classList.remove("btn-primary");
+        retrieveBtn.classList.add("btn-success");
+
+        setTimeout(() => {
+
+          retrieveBtn.textContent =
+            "Run retrieval";
+
+          retrieveBtn.disabled = false;
+
+          retrieveBtn.classList.remove("btn-success");
+          retrieveBtn.classList.add("btn-primary");
+
+        }, 1600);
+
       }, 1100);
 
     });
 
-    const generateBtn = document.getElementById("generateBtn");
-    const draftEditor = document.getElementById("draftEditor");
+    /* ---------------------------------------------
+       DEMAND DRAFT GENERATION
+    --------------------------------------------- */
 
     generateBtn.addEventListener("click", () => {
 
-      const tone = document.getElementById("tone").value;
-      const evidenceMode = document.getElementById("evidenceMode").value;
-      const structure = document.getElementById("structure").value;
+      const tone =
+        document.getElementById("tone").value;
 
-      generateBtn.textContent = "Generating...";
+      const evidenceMode =
+        document.getElementById("evidenceMode").value;
+
+      const structure =
+        document.getElementById("structure").value;
+
+      generateBtn.textContent =
+        "Generating...";
+
+      generateBtn.disabled = true;
 
       setTimeout(() => {
 
@@ -1653,7 +2614,9 @@ Demonstration Draft</textarea>
 
 RE: Johnson v. Meridian — Demonstration Case
 
-DRAFT CONFIGURATION
+GENERATED DEMONSTRATION DRAFT
+
+Configuration
 Tone: ${tone}
 Evidence mode: ${evidenceMode}
 Structure: ${structure}
@@ -1664,7 +2627,7 @@ The claimant, Jordan Johnson, was involved in a documented motor vehicle inciden
 
 The records currently associated with the demonstration case document medical expenses totaling $18,640. The source materials also contain documentation regarding temporary work restrictions during the treatment period.
 
-The statements in this draft are intended to demonstrate evidence-grounded document generation. Each material fact should be validated against the underlying source materials before use.
+The content above is intended to demonstrate how extracted case information and retrieved evidence can be assembled into a review-ready draft.
 
 SOURCE REFERENCES
 
@@ -1672,73 +2635,90 @@ SOURCE REFERENCES
 [2] medical-records-demo.pdf, p. 8
 [3] billing-summary-demo.pdf, p. 2
 
-HUMAN REVIEW
+HUMAN REVIEW REQUIRED
 
-Reviewer verification is required for factual accuracy, citations, calculations, and any legal content.
-
-Sincerely,
-
-AI Demand Writing Automation
-Demonstration Draft`;
-
-        generateBtn.textContent = "Generate draft";
-
-      }, 1200);
-
-    });
-
-    document.getElementById("resetDraft").addEventListener("click", () => {
-
-      draftEditor.value =
-`Dear Claims Representative,
-
-RE: Johnson v. Meridian — Demonstration Case
-
-This document is a synthetic demonstration of an evidence-grounded demand letter workflow.
-
-Based on the uploaded case materials, the claimant, Jordan Johnson, was involved in a motor vehicle incident on May 14, 2026. Subsequent medical records document continued neck and shoulder symptoms, follow-up evaluation, orthopedic review, and a course of physical therapy.
-
-The available records indicate documented medical expenses totaling $18,640. The treatment records also describe temporary work restrictions and continued rehabilitation during the documented recovery period.
-
-The statements above are intended to demonstrate how extracted case facts and retrieved source evidence can be assembled into a structured draft.
-
-Supporting evidence:
-[1] medical-records-demo.pdf, p. 4
-[2] medical-records-demo.pdf, p. 8
-[3] billing-summary-demo.pdf, p. 2
-
-A human reviewer should verify all facts, citations, calculations, and legal content before any external use.
+All factual statements, citations, calculations, and legal content should be verified against the underlying source materials before any external use.
 
 Sincerely,
 
 AI Demand Writing Automation
 Demonstration Draft`;
 
+        generateBtn.textContent =
+          "Generate draft";
+
+        generateBtn.disabled = false;
+
+        reviewState.innerHTML =
+          'Review state: <strong>New draft generated</strong>';
+
+      }, 1250);
+
     });
 
-    document.getElementById("approveBtn").addEventListener("click", (event) => {
+    /* ---------------------------------------------
+       RESET DRAFT
+    --------------------------------------------- */
 
-      event.currentTarget.textContent = "Ready for review ✓";
+    resetDraftBtn.addEventListener("click", () => {
 
-      event.currentTarget.classList.add("btn-success");
+      draftEditor.value = initialDraft;
+
+      reviewState.innerHTML =
+        'Review state: <strong>Draft</strong>';
+
+      approveBtn.textContent =
+        "Mark ready for review";
+
+      approveBtn.classList.remove("btn-primary");
+
+      approveBtn.classList.add("btn-success");
 
     });
 
-    document.getElementById("downloadBtn").addEventListener("click", () => {
+    /* ---------------------------------------------
+       HUMAN REVIEW
+    --------------------------------------------- */
+
+    approveBtn.addEventListener("click", () => {
+
+      approveBtn.textContent =
+        "Ready for review ✓";
+
+      approveBtn.classList.remove("btn-success");
+
+      approveBtn.classList.add("btn-primary");
+
+      reviewState.innerHTML =
+        'Review state: <strong>Ready for human review</strong>';
+
+    });
+
+    /* ---------------------------------------------
+       EXPORT
+    --------------------------------------------- */
+
+    downloadBtn.addEventListener("click", () => {
 
       const content = draftEditor.value;
 
       const blob = new Blob(
         [content],
-        { type: "text/plain;charset=utf-8" }
+        {
+          type: "text/plain;charset=utf-8"
+        }
       );
 
-      const url = URL.createObjectURL(blob);
+      const url =
+        URL.createObjectURL(blob);
 
-      const anchor = document.createElement("a");
+      const anchor =
+        document.createElement("a");
 
       anchor.href = url;
-      anchor.download = "demand-letter-demo.txt";
+
+      anchor.download =
+        "demand-letter-demo.txt";
 
       document.body.appendChild(anchor);
 
