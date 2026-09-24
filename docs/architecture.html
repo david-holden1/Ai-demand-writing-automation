@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Architecture — AI Demand Writing Automation</title>
+
+  <meta
+    name="description"
+    content="System architecture and AI workflow for the AI Demand Writing Automation platform."
+  />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #11182d;
+      --card: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f5f7ff;
+      --muted: #aab3ca;
+      --accent: #7c8cff;
+      --accent-2: #55d6be;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124, 140, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 90% 10%, rgba(85, 214, 190, 0.1), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      background: rgba(11, 16, 32, 0.78);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .hero {
+      padding: 90px 0 70px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--accent-2);
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 1.03;
+      letter-spacing: -0.055em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 22px auto 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .hero-actions {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 46px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0b1020;
+      border-color: transparent;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    section {
+      padding: 70px 0;
+    }
+
+    .section-heading {
+      margin-bottom: 32px;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+
+    h2 {
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      max-width: 760px;
+      margin-top: 12px;
+    }
+
+    .diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--card);
+    }
+
+    .layer {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .layer-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(124, 140, 255, 0.08);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 16px;
+    }
+
+    .layer-content {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .layer-content strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .layer-content span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      padding: 24px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    .number {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(124, 140, 255, 0.14);
+      color: var(--accent);
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .agent {
+      padding: 22px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 18px;
+    }
+
+    .agent h3 {
+      margin-bottom: 7px;
+    }
+
+    .agent p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .flow-box {
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(124, 140, 255, 0.08),
+          rgba(85, 214, 190, 0.05)
+        );
+    }
+
+    .flow-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .flow-item {
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+      padding: 16px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .flow-arrow {
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .tech {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: #dce2f5;
+      font-size: 13px;
+    }
+
+    .notice {
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.035);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 50px;
+      padding: 28px 0 45px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 850px) {
+      .layer {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow,
+      .agent-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .flow-line {
+        flex-direction: column;
+      }
+
+      .flow-item {
+        width: 100%;
+      }
+
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="container nav-inner">
+      <a href="index.html" class="brand">AI Demand Automation</a>
+
+      <div class="nav-links">
+        <a href="index.html">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#agents">AI Agents</a>
+        <a href="#stack">Stack</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="hero">
+      <div class="container">
+
+        <div class="badge">System Architecture</div>
+
+        <h1>
+          Evidence to
+          <span style="color: var(--accent);">Demand Letter</span>
+        </h1>
+
+        <p>
+          A modular architecture for converting unstructured case documents
+          into structured evidence, contextual retrieval, AI-assisted analysis,
+          and review-ready demand letter drafts.
+        </p>
+
+        <div class="hero-actions">
+          <a href="index.html" class="btn btn-secondary">
+            Back to Project
+          </a>
+
+          <a
+            href="https://github.com/david-holden1/Ai-demand-writing-automation"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary"
+          >
+            View GitHub
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="container">
+
+        <div class="section-heading">
+          <div class="eyebrow">Architecture</div>
+
+          <h2>Layered system design.</h2>
+
+          <p>
+            The platform separates user-facing workflows, APIs, data services,
+            AI orchestration, storage, and infrastructure so each layer can
+            evolve independently.
+          </p>
+        </div>
+
+        <div class="diagram">
+
+          <div class="layer">
+            <div class="layer-label">Frontend</div>
+            <div class="layer-content">
+              <strong>Next.js Web Application</strong>
+              <span>
+                Case management, document upload, review interface,
+                evidence viewer, demand letter editor, and exports.
+              </span>
+            </div>
+          </div>
+
+          <div class="arrow">↓</div>
+
+          <div class="layer">
+            <div class="layer-label">API</div>
+            <div class="layer-content">
+              <strong>FastAPI Application Services</strong>
+              <span>
+                Authentication, case APIs, document processing,
+                workflow orchestration, retrieval, and generation services.
+              </span>
+            </div>
+          </div>
+
+          <div class="arrow">↓</div>
+
+          <div class="layer">
+            <div class="layer-label">Data</div>
+            <div class="layer-content">
+              <strong>PostgreSQL + pgvector</strong>
+              <span>
+                Structured case records, extracted entities, document
+                metadata, embeddings, and semantic retrieval indexes.
+              </span>
+            </div>
+          </div>
+
+          <div class="arrow">↓</div>
+
+          <div class="layer">
+            <div class="layer-label">AI</div>
+            <div class="layer-content">
+              <strong>RAG + LangGraph Multi-Agent Workflow</strong>
+              <span>
+                Extraction, timeline construction, evidence retrieval,
+                analysis, drafting, validation, and citation grounding.
+              </span>
+            </div>
+          </div>
+
+          <div class="arrow">↓</div>
+
+          <div class="layer">
+            <div class="layer-label">Infrastructure</div>
+            <div class="layer-content">
+              <strong>AWS + Docker + Terraform + CI/CD</strong>
+              <span>
+                Object storage, containers, deployment automation,
+                infrastructure as code, observability, and secure delivery.
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="container">
+
+        <div class="section-heading">
+          <div class="eyebrow">Document Workflow</div>
+
+          <h2>From raw documents to structured evidence.</h2>
+        </div>
+
+        <div class="workflow">
+
+          <div class="card">
+            <div class="number">01</div>
+            <h3>Ingestion</h3>
+            <p>
+              Upload case PDFs and DOCX files. Store originals and metadata
+              in object storage for downstream processing.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="number">02</div>
+            <h3>Parsing & OCR</h3>
+            <p>
+              Extract text from digital documents and provide an OCR path
+              for scanned or image-based material.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="number">03</div>
+            <h3>Structured Extraction</h3>
+            <p>
+              Identify patients, providers, dates, diagnoses, treatments,
+              expenses, and other relevant case entities.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="number">04</div>
+            <h3>Timeline Generation</h3>
+            <p>
+              Convert extracted events into a chronological representation
+              of treatment and case development.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="number">05</div>
+            <h3>Semantic Indexing</h3>
+            <p>
+              Chunk evidence and generate embeddings for semantic retrieval
+              through PostgreSQL and pgvector.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="number">06</div>
+            <h3>Evidence Grounding</h3>
+            <p>
+              Retrieve source passages relevant to each AI-generated claim
+              so outputs remain connected to case evidence.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="agents">
+      <div class="container">
+
+        <div class="section-heading">
+          <div class="eyebrow">Multi-Agent AI</div>
+
+          <h2>Specialized agents for controlled generation.</h2>
+
+          <p>
+            The AI workflow is designed as a sequence of specialized tasks
+            rather than relying on a single unrestricted generation step.
+          </p>
+        </div>
+
+        <div class="agent-grid">
+
+          <div class="agent">
+            <h3>Document Agent</h3>
+            <p>
+              Identifies document type, extracts relevant sections,
+              and prepares content for downstream processing.
+            </p>
+          </div>
+
+          <div class="agent">
+            <h3>Medical Extraction Agent</h3>
+            <p>
+              Structures treatment history, diagnoses, procedures,
+              providers, and medically relevant events.
+            </p>
+          </div>
+
+          <div class="agent">
+            <h3>Timeline Agent</h3>
+            <p>
+              Builds a chronological case timeline from extracted dates
+              and treatment events.
+            </p>
+          </div>
+
+          <div class="agent">
+            <h3>Damages Agent</h3>
+            <p>
+              Organizes documented medical expenses and other supported
+              damages information.
+            </p>
+          </div>
+
+          <div class="agent">
+            <h3>Research & Retrieval Agent</h3>
+            <p>
+              Retrieves relevant evidence from the indexed case materials
+              and prepares context for generation.
+            </p>
+          </div>
+
+          <div class="agent">
+            <h3>Drafting Agent</h3>
+            <p>
+              Produces a structured demand letter draft using retrieved
+              evidence and extracted case facts.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+
+        <div class="section-heading">
+          <div class="eyebrow">End-to-End Flow</div>
+
+          <h2>How the system connects.</h2>
+        </div>
+
+        <div class="flow-box">
+
+          <div class="flow-line">
+
+            <div class="flow-item">
+              Case Documents
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-item">
+              Parsing
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-item">
+              Extraction
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-item">
+              Vector Search
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-item">
+              AI Workflow
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-item">
+              Draft
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-item">
+              Human Review
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="stack">
+      <div class="container">
+
+        <div class="section-heading">
+          <div class="eyebrow">Technology</div>
+
+          <h2>Planned technology stack.</h2>
+        </div>
+
+        <div class="card">
+
+          <div class="tech">
+            <span class="tag">Next.js</span>
+            <span class="tag">TypeScript</span>
+            <span class="tag">Python</span>
+            <span class="tag">FastAPI</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">pgvector</span>
+            <span class="tag">LangGraph</span>
+            <span class="tag">OpenAI</span>
+            <span class="tag">Anthropic</span>
+            <span class="tag">AWS S3</span>
+            <span class="tag">Redis</span>
+            <span class="tag">Docker</span>
+            <span class="tag">Terraform</span>
+            <span class="tag">GitHub Actions</span>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+
+        <div class="notice">
+          <strong style="color: var(--text);">
+            Important:
+          </strong>
+          This is a software engineering and AI demonstration project.
+          It is not a substitute for legal advice or professional legal
+          judgment. Demonstration data should be synthetic or de-identified.
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+
+      <div>
+        AI Demand Writing Automation
+      </div>
+
+      <div>
+        <a href="index.html">Project Home</a>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>
